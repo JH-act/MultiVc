@@ -980,7 +980,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
     public function formItem(string $item): ilCheckboxInputGUI|ilHiddenInputGUI
     {
-        $text = "rep_robj_xmvc_" . $item;
+        $text = "rep_robj_xmvc_" . $item; // hier was? wo sind wir hier?
         $info = $text . "_info";
         if($this->isTeams) {
             if ($item == 'private_chat') {
@@ -1297,7 +1297,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
     /**
      * Update properties
      */
-    public function updateProperties()
+    public function updateProperties() // update props
     {
         $ilCtrl = $this->dic->ctrl();
 

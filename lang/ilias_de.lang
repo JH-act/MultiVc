@@ -415,6 +415,10 @@ user_results#:#Anwesenheitszeiten
 user_results_desc#:#Zeiten werden nur für bereits beendete Meetings angezeigt. Meetings müssen zudem das vorgesehene Ende erreicht haben.
 user_start#:#erster Start
 user_time#:#Anwesenheitszeit
+vvd_domain#:#Visavid-Domain
+vvd_domain_info#:#URL des Visavid-Systems, wo der Raum erstellt werden soll
+vvd_token#:#API-Token
+vvd_token_info#:#API-Token zur Authentifizierung mit dem Visavid-System
 wait_join_meeting#:#<b>Aktuell ist noch keine Person mit Moderatorfunktion im virtuellen Meetingraum anwesend.<br/>Bitte warten Sie und rufen Sie diese Seite in einer Minute erneut auf.</b>
 wait_join_meeting_edudip#:#Aktuell können Sie keinem Webinar beitreten.
 wait_join_meeting_guest#:#<b>Aktuell ist noch keine Person mit Moderatorfunktion im virtuellen Meetingraum anwesend.<br/>Bitte warten Sie und klicken Sie in einer Minute erneut auf die Schaltfläche 'Meeting beitreten'.</b>

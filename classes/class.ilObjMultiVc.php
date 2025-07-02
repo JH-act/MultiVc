@@ -104,7 +104,7 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
     {
     }
 
-    public function createRoom(int $online, int $conn_id)
+    public function createRoom(int $online, int $conn_id) // create room
     {
         $ilDB = $this->db;
         $this->setOnline($this->ilIntToBool((int) $online));
@@ -209,7 +209,7 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
     /**
     * Update data
     */
-    public function doUpdate(): void
+    public function doUpdate(): void // update room
     {
         $ilDB = $this->db;
         $a_data = array(
@@ -321,7 +321,7 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
     /**
      * Do Cloning
      */
-    public function doClone(ilObject2 $new_obj, int $a_target_id, ?int $a_copy_id)
+    public function doClone(ilObject2 $new_obj, int $a_target_id, ?int $a_copy_id) // clone room
     {
         $ilDB = $this->db;
         $a_data = array(

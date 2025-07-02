@@ -415,6 +415,10 @@ user_results#:#Attendance times
 user_results_desc#:#Time is only displayed for meetings that have already ended. Meetings must also have reached the scheduled end.
 user_start#:#first start
 user_time#:#Attendance time
+vvd_domain#:#Visavid domain
+vvd_domain_info#:#URL of the Visavid system where the room is to be created
+vvd_token#:#API token
+vvd_token_info#:#API token for authentication with the Visavid system
 wait_join_meeting#:#<b>Currently no person with moderator function is present in the virtual meeting room.<br/>Please wait and call this page again in one minute.</b>
 wait_join_meeting_edudip#:#Currently you cannot join any webinar.
 wait_join_meeting_guest#:#<b>Currently no person with moderator function is present in the virtual meeting room.<br/>Please wait and click on 'Join Meeting' again in one minute.</b>

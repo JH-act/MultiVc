@@ -15,14 +15,16 @@ class ilMultiVcConfig
         'edudip' => 'Edudip',
         'om' => 'Openmeetings',
         'webex' => 'Webex',
-        'teams' => 'Teams'
+        'teams' => 'Teams',
+        'visavid' => 'Visavid'
     ];
     public const AVAILABLE_XMVC_API = [
         'webex' => 'ilApiWebex',
         'edudip' => 'ilApiEdudip',
         'bbb' => 'ilApiBBB',
         'om' => 'ilApiOM',
-        'teams' => 'ilApiTeams'
+        'teams' => 'ilApiTeams',
+        'visavid' => 'ilApiVisavid'
     ];
     public const AVAILABLE_Webex_API = [
         'admin' => 'Admin Scopes',
@@ -47,7 +49,7 @@ class ilMultiVcConfig
 
     public const VC_RELATED_FUNCTION = [
         'globalAssignedRoles' => [
-            'bbb', 'edudip', 'webex', 'om', 'teams'
+            'bbb', 'edudip', 'webex', 'om', 'teams', 'visavid'
         ],
         'maxDuration' => [
             'bbb'
@@ -153,6 +155,9 @@ class ilMultiVcConfig
             'camOnlyForModeratorChoose',
             'privateChatChoose',
             'recordChoose'
+        ],
+        'visavid' => [
+
         ]
     ];
 
