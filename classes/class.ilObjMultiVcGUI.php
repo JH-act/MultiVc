@@ -42,6 +42,8 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
     public bool $isTeams = false;
 
+    public bool $isVisavid = false;
+
     /** @var null|ilApiBBB|ilApiWebex|ilApiEdudip|ilApiOM $vcObj  */
     public $vcObj = null;
 
@@ -107,6 +109,9 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 $this->isTeams = true;
                 $checkAuthUser =
                 $initVc = $isXmvcObj;
+                break;
+            case 'visavid':
+                $this->isVisavid = true;
                 break;
             default:
                 break;
