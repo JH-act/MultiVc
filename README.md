@@ -54,11 +54,11 @@ Des Weiteren benötigen Sie eine funktionsfähige Installation der gewünschten 
 
 # Unterstützte WebRTC-Platformen
 Aktuell werden folgende WebRTC-Platformen unterstützt:
-- BigBlueButton
-- edudip (Webinar)
-- Webex
-- Teams
-
+- [BigBlueButton](#bigbluebutton)
+- [edudip (Webinar)](#edudip-webinar)
+- [Webex](#webex)
+- [Teams](#teams)
+- [Visavid](#visavid)
 
 
 
@@ -298,6 +298,9 @@ Teilnehmende werden auch dann benachrichtigt, wenn Meetings bereits vor ihrem Ku
 Grundsätzlich werden die Standard-Teams-Benachrichtigungen unter Berücksichtigung der Benutzersprache und der gewählten Zeitzone genutzt. Da die Teilnehmenden außer dem Direktlink zu Teams auch den Link im ILIAS-Objekt nutzen können und ggfs. ein Hinweis zu anstehenden Aufzeichnungen übermittelt werden soll, gilt Folgendes: Möchten Sie als Organisator die ergänzenden Texte z.B. in Englisch anzeigen lassen, so wechseln Sie in ILIAS zur englischen Sprache und legen Sie dann ein Meeting an. Auch alle Folge-Benachrichtigungen etwa beim Kursbeitritt nutzen dann die zum Zeitpunkt des Anlegens eines Meetings genutzte Sprache.   
 
 
+## Visavid
+
+TODO
 
 
 # Verwendung

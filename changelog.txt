@@ -47,3 +47,5 @@
 9.5
 - lobbyBypassScope for MS Teams configurable
 - Support for eMail-alias of Microsoft Entra
+9.x
+- added Support for Visavid (see README.md)
