@@ -18,7 +18,7 @@ if(!(ilApiMultiVC::setPluginIniSet()['non_role_based_vc'] ?? 0)) {
 }
 
 // domain of visavid system
-$ti = new iTextInputGUI($pl->txt("vvd_domain"), "vvd_domain");
+$ti = new ilTextInputGUI($pl->txt("vvd_domain"), "vvd_domain");
 $ti->setRequired(true);
 $ti->setMaxLength(256);
 $ti->setSize(60);
@@ -26,7 +26,7 @@ $ti->setInfo($pl->txt("vvd_domain_info"));
 $combo->addSubItem($ti);
 
 // api token for visavid system
-$ti = new iTextInputGUI($pl->txt("vvd_token"), "vvd_token");
+$ti = new ilTextInputGUI($pl->txt("vvd_token"), "vvd_token");
 $ti->setRequired(true);
 $ti->setMaxLength(256);
 $ti->setSize(60);
