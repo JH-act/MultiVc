@@ -1476,7 +1476,4 @@ if(!$ilDB->tableExists("rep_robj_xmvc_vvd")) {
 if(!$ilDB->primaryExistsByFields("rep_robj_xmvc_vvd", array("id"))) {
     $ilDB->addPrimaryKey("rep_robj_xmvc_vvd", array("id"));
 }
-if(!$ilDB->indexExists('rep_robj_xmvc_vvd', ['ref_id'])) {
-    $ilDB->addIndex('rep_robj_xmvc_vvd', ['ref_id'], 'idx_vvd');
-}
 ?>
