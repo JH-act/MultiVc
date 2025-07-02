@@ -158,9 +158,9 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         }
     }
 
-    public function getVcObj(): ilApiBBB|ilApiEdudip|ilApiOM|ilApiWebex|ilApiTeams
-    {
-        $class = ilMultiVcConfig::AVAILABLE_XMVC_API[$this->platform];
+    public function getVcObj(): ilApiBBB|ilApiEdudip|ilApiOM|ilApiWebex|ilApiTeams|ilApiVisavid
+    { // TODO wann wird platform gesetzt? Ist hier immer null..
+        $class = ilMultiVcConfig::AVAILABLE_XMVC_API[$this->platform ?? 'visavid'];
         return $this->vcObj ?? $this->vcObj = new $class($this);
     }
 
@@ -908,13 +908,9 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
         $new_object->setAuthUser($DIC->user()->getEmail());
 
-        if ($this->platform === 'visavid') {
-            $new_object->createRoomVisavid();
-        }
-        else {
-            $new_object->createRoom((int) $form->getInput("online"), $form->getInput("conn_id"));
-            $new_object->fillEmptyPasswordsBBBVCR();
-        }
+        $new_object->createRoom((int) $form->getInput("online"), $form->getInput("conn_id"));
+        $new_object->fillEmptyPasswordsBBBVCR();
+        $new_object->createVisavidRoom($this->getVcObj());
 
         //var_dump($newObj); exit;
         ilSession::set('createNewObj', true);

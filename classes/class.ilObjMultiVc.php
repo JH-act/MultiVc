@@ -145,17 +145,16 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
         */
     }
 
-    public function createRoomVisavid()
-    {
-        // hier visavid-zugriff, dann
+    public function createVisavidRoom(ilApiVisavid $vcObj) {
         $ilDB = $this->db;
+        //TODO nur if platform visavid
+        if(!true) {
+            return;
+        }
 
-        // persist generic data
-         $a_data = array(
-            'id' => array('integer', $this->getId()),
-         );
-        $ilDB->insert('rep_robj_xmvc_data', $a_data);
-         
+        $vcObj->createRoom();
+        // TODO daten aus createRoom in DB speichern
+
         // persist visavid specific data
         $a_data = array (
             'id' => array('string', 'uuid'),
