@@ -907,8 +907,15 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         $form->checkInput();
 
         $new_object->setAuthUser($DIC->user()->getEmail());
-        $new_object->createRoom((int) $form->getInput("online"), $form->getInput("conn_id"));
-        $new_object->fillEmptyPasswordsBBBVCR();
+
+        if ($this->platform === 'visavid') {
+            $new_object->createRoomVisavid();
+        }
+        else {
+            $new_object->createRoom((int) $form->getInput("online"), $form->getInput("conn_id"));
+            $new_object->fillEmptyPasswordsBBBVCR();
+        }
+
         //var_dump($newObj); exit;
         ilSession::set('createNewObj', true);
         ilSession::set('doNotShowResetedTokens', true);

@@ -104,7 +104,7 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
     {
     }
 
-    public function createRoom(int $online, int $conn_id) // create room
+    public function createRoom(int $online, int $conn_id)
     {
         $ilDB = $this->db;
         $this->setOnline($this->ilIntToBool((int) $online));
@@ -143,6 +143,28 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
         $this->setMultiVcObjUser($objUserCreateDefaultsEntry);
         $this->setMultiVcObjUser(['email' => $authUser], $this->getRefId());
         */
+    }
+
+    public function createRoomVisavid()
+    {
+        // hier visavid-zugriff, dann
+        $ilDB = $this->db;
+
+        // persist generic data
+         $a_data = array(
+            'id' => array('integer', $this->getId()),
+         );
+        $ilDB->insert('rep_robj_xmvc_data', $a_data);
+         
+        // persist visavid specific data
+        $a_data = array (
+            'id' => array('string', 'uuid'),
+            'ref_id' => array('string', $this->getId()),
+            'room_url' => array('string', 'url'),
+            'code_mod' => array('string', 'xxxx-asdf'),
+            'code_par' => array('string', '1234-abcd')
+        );
+        $ilDB->insert('rep_robj_xmvc_vvd', $a_data);
     }
 
     /**
