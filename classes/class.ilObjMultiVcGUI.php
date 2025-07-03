@@ -158,9 +158,10 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         }
     }
 
-    public function getVcObj(): ilApiBBB|ilApiEdudip|ilApiOM|ilApiWebex|ilApiTeams|ilApiVisavid
-    { // TODO wann wird platform gesetzt? Ist hier immer null..
-        $class = ilMultiVcConfig::AVAILABLE_XMVC_API[$this->platform ?? 'visavid'];
+    // get XMVC_API for current or given platform 
+    public function getVcObj(?string $platform = null): ilApiBBB|ilApiEdudip|ilApiOM|ilApiWebex|ilApiTeams|ilApiVisavid
+    {
+        $class = ilMultiVcConfig::AVAILABLE_XMVC_API[$platform ?? $this->platform];
         return $this->vcObj ?? $this->vcObj = new $class($this);
     }
 
@@ -169,6 +170,8 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
      */
     protected function afterConstructor(): void
     {
+        // TODO wird auch aufgerufen bei Erzeugung eines Objekts: dort ist $this->object aber NULL
+
         // anything needed after object has been constructed
         //   $ilCtrl->saveParameter($this, array("my_id"));
         //$this->deactivateCreationForm(ilObject2GUI::CFORM_IMPORT);
@@ -905,12 +908,18 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
         $form = $this->initCreateForm('xmvc');
         $form->checkInput();
+        $connId = $form->getInput("conn_id");
+        
+        // $this->platform null on creation of a new vc object: use form values and $new_object instead
+        $platform = $new_object instanceof ilObjMultiVc ? ilMultiVcConfig::getInstance($connId)->getShowContent() : $this->platform;
+
+        if ($platform === 'visavid') { // TODO Fehlerhandling wenn Visavid-Raum nicht erstellt werden kann 
+            $new_object->createVisavidRoom($connId, $this->getVcObj('visavid'), $form->getInput("title"), $form->getInput("desc"));
+        }
 
         $new_object->setAuthUser($DIC->user()->getEmail());
-
-        $new_object->createRoom((int) $form->getInput("online"), $form->getInput("conn_id"));
+        $new_object->createRoom((int) $form->getInput("online"), $connId);
         $new_object->fillEmptyPasswordsBBBVCR();
-        $new_object->createVisavidRoom($this->getVcObj());
 
         //var_dump($newObj); exit;
         ilSession::set('createNewObj', true);

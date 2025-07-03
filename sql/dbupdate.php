@@ -1451,24 +1451,18 @@ $fields_data = array(
         'length' => 8,
         'notnull' => true
     ),
-    // join URL of visavid room 
-    'room_url' => array( 
+    // join URL for moderators
+    'url_mod' => array( 
         'type' => 'text',
         'length' => 255,
         'notnull' => true
     ),
-    // join code for moderators
-    'code_mod' => array(
+    // join URL for participants
+    'url_par' => array( 
         'type' => 'text',
-        'length' => 9,
-        'notnull' => false
+        'length' => 255,
+        'notnull' => true
     ),
-    // join code for participants
-    'code_par' => array(
-        'type' => 'text',
-        'length' => 9,
-        'notnull' => false
-    )
 );
 if(!$ilDB->tableExists("rep_robj_xmvc_vvd")) {
     $ilDB->createTable("rep_robj_xmvc_vvd", $fields_data);
