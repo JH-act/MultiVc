@@ -26,7 +26,8 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         'EDUDIP' => 'start',
         'BBB' => 'start',
         'OM' => 'start',
-        'TEAMS' => 'start'
+        'TEAMS' => 'start',
+        'VISAVID' => 'start'
     ];
 
     public ?ilObject $object = null;
@@ -1572,6 +1573,9 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
             case 'teams':
                 $this->showContentTeams();
                 break;
+            case 'visavid':
+                $this->showContentVisavid();
+                break;
         }
     }
 
@@ -2189,7 +2193,40 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
      * @throws ilTemplateException
      * @throws Exception
      */
-    private function showContentDefault(ilApiBBB|ilApiEdudip|ilApiOM|ilApiWebex|ilApiTeams|StdClass $vcObj, bool $withConcurrent = false)
+    private function showContentVisavid() {
+        $settings = ilMultiVcConfig::getInstance($this->object->getConnId());
+        
+        if((bool) strlen($hint = trim($settings->getHint()))) {
+            $this->dic->ui()->mainTemplate()->setOnScreenMessage('question', $hint);
+        }
+
+        try {
+            $vvd = new ilApiVisavid($this);
+        } catch (Exception $e) {
+            var_dump($e); exit;
+            $vvd = new StdClass();
+        }
+
+        switch(true) {
+            case !($vvd instanceof ilApiVisavid) || !ilObjMultiVcAccess::checkConnAvailability($this->obj_id):
+                $this->showContentUnavailable();
+                break;
+            case $this->dic->http()->wrapper()->query()->has('startVISAVID') && $this->dic->http()->wrapper()->query()->retrieve('startVISAVID', $this->dic->refinery()->kindlyTo()->int()) === 1:
+                // Page was loaded with params to start visavid room
+                $this->redirectToPlatformByUrl($vvd->getUrlJoinMeeting(), $vvd);
+                break;
+            default:
+                $this->showContentDefault($vvd, false);
+                break;
+        }
+
+    }
+
+    /**
+     * @throws ilTemplateException
+     * @throws Exception
+     */
+    private function showContentDefault(ilApiBBB|ilApiEdudip|ilApiOM|ilApiWebex|ilApiTeams|ilApiVisavid|StdClass $vcObj, bool $withConcurrent = false)
     {
         $tpl = $this->dic->ui()->mainTemplate();//['tpl'];
         $tpl->addCss("./Customizing/global/plugins/Services/Repository/RepositoryObject/MultiVc/templates/default/tpl.show_content_default.css");
@@ -2201,23 +2238,35 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
         $apiPostFix = strtolower(str_replace('ilApi', '', get_class($vcObj)));
 
-        $my_tpl->setVariable('HEADLINE_WELCOME', $this->txt('headline_welcome_' . $this->sessType));
+        $my_tpl->setVariable('HEADLINE_WELCOME', $this->txt('headline_welcome_' . (!$this->isVisavid ? $this->sessType : 'visavid')));
 
-        if($this->isBBB || $vcObj instanceof ilApiOM) {
+        if($this->isBBB || $this->isVisavid || $vcObj instanceof ilApiOM) {
             if ($this->object->get_moderated()) {
                 if ($vcObj->isUserModerator()) {
                     $my_tpl->setVariable("INFOTOP", $this->txt('info_top_moderator_' . $this->platform));
                 } else {
-                    $my_tpl->setVariable("INFOTOP", $this->txt('info_top_moderated_m_bbb'));
+                    $my_tpl->setVariable("INFOTOP", $this->txt('info_top_moderated_m_' . ($this->isVisavid ? 'visavid' : 'bbb')));
                 }
             } else {
-                $my_tpl->setVariable("INFOTOP", $this->txt('info_top_not_moderated_bbb'));
+                $my_tpl->setVariable("INFOTOP", $this->txt('info_top_not_moderated_' . ($this->isVisavid ? 'visavid' : 'bbb')));
             }
         }
 
         $my_tpl->setVariable('MEETING_RUNNUNG', $this->txt($this->sessType . '_running'));
 
-        if($this->object->get_moderated() && $this->object->isRecordingAllowed() && ($vcObj->isMeetingRunning() || $vcObj->isUserModerator())) {
+        if($this->isVisavid && $this->object->isRecordingAllowed()) {
+            $recWarning = $this->txt('recording_warning_visavid');
+
+            $my_tpl->setVariable(
+                "RECORDING_WARNING",
+                $this->getUiCompMsgBox(
+                    'info',
+                    $recWarning
+                )
+            );
+            $my_tpl->setVariable("UNHIDE_MSG_REC_ALLOWED", 'un');
+        }
+        elseif($this->object->get_moderated() && $this->object->isRecordingAllowed() && ($vcObj->isMeetingRunning() || $vcObj->isUserModerator())) {
             $recWarning = $this->txt('recording_warning');
             $publishRecs = $this->object->getPubRecs() || $this->xmvcConfig->getPubRecsDefault();
             if($publishRecs) {
@@ -2416,7 +2465,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
     /**
      * @throws Exception
      */
-    private function redirectToPlatformByUrl(string $url, ilApiBBB|ilApiOM|ilApiWebex|ilApiEdudip|ilApiTeams|null $vcObj = null): void
+    private function redirectToPlatformByUrl(string $url, ilApiBBB|ilApiOM|ilApiWebex|ilApiEdudip|ilApiTeams|ilApiVisavid|null $vcObj = null): void
     {
         if(!is_null($vcObj) && $vcObj instanceof ilApiBBB) {
             $this->object->setUserLog('bbb', $vcObj);
@@ -2430,14 +2479,14 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
      * @throws ilTemplateException
      * @throws Exception
      */
-    private function getJoinContent(ilApiBBB|ilApiOM|ilApiWebex|ilApiTeams $vcObj): string
+    private function getJoinContent(ilApiBBB|ilApiOM|ilApiWebex|ilApiTeams|ilApiVisavid $vcObj): string
     {
         $sessAuthUserIsValid = true;
-
         $showBtn = (
             (!$this->object->get_moderated() /* && $vcObj->isValidAppointmentUser() */) ||
             //( $this->object->get_moderated() && $bbb->hasSessionObject() && $bbb->isValidAppointmentUser() ) ||
             ($this->object->get_moderated() && ($vcObj->isUserModerator() || $vcObj->isUserAdmin())) ||
+            ($this->isVisavid) ||
             ($this->object->get_moderated() && $vcObj->isMeetingRunning() && $vcObj->isModeratorPresent() /* && $vcObj->isValidAppointmentUser() */)
         );
 
@@ -2445,6 +2494,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         $isWebex = get_class($vcObj) === 'ilApiWebex';
         $isEdudip = get_class($vcObj) === 'ilApiEdudip';
         $isTeams = get_class($vcObj) === 'ilApiTeams';
+        $isVisavid = get_class($vcObj) === "ilApiVisavid";
         $hasSessionProvider = false !== array_search(get_class($vcObj), ['ilApiWebex', 'ilApiEdudip', 'ilApiTeams']);
         $isModOrAdmin = $vcObj->isUserModerator() || $vcObj->isUserAdmin();
         #$webexData = $isWebex ? $this->object->getWebexMeetingByRefIdAndDateTime($this->ref_id, null, !$isModOrAdmin ? 0 : ilObjMultiVc::MEETING_TIME_AHEAD) : null;
@@ -2482,7 +2532,9 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 ? 'start'
                 : 'join';
             $tpl = new ilTemplate("./Customizing/global/plugins/Services/Repository/RepositoryObject/MultiVc/templates/default/tpl.join_btn.html", true, true);
-            $joinBtnText = $this->lng->txt('rep_robj_xmvc_btntext_' . $btnEvent . '_' . $this->sessType);
+            $joinBtnText = !$this->isVisavid 
+                ? $this->lng->txt('rep_robj_xmvc_btntext_' . $btnEvent . '_' . $this->sessType) 
+                : $this->lng->txt('rep_robj_xmvc_btntext_visavid');
             $vcType = strtoupper(ilMultiVcConfig::getInstance($this->object->getConnId())->getShowContent());
             $startType = self::START_TYPE[$vcType];
             #echo '<pre>'; var_dump([$vcType, $startType]); exit;
@@ -2507,6 +2559,8 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 $tpl->setVariable("WAITMSG", $this->lng->txt('rep_robj_xmvc_wait_join_meeting_edudip'));
             } elseif ($isTeams) {
                 $tpl->setVariable("WAITMSG", str_replace('{br}', '<br />', $this->lng->txt('rep_robj_xmvc_wait_join_meeting_teams')));
+            } elseif ($isVisavid) {
+                // show nothing: room can always be joined
             } else {
                 $tpl->setVariable("WAITMSG", $this->lng->txt('rep_robj_xmvc_wait_join_meeting'));
             }

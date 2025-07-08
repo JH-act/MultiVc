@@ -39,6 +39,7 @@ btn_settings#:#Einstellungen im Raum
 btn_settings_info#:#Aktivieren Sie diese Option wenn Schaltfläche und Optionen für Einstellungen im Raum sichtbar sein sollen. Gewöhnlich ist dies nicht nötig, da Name und Benutzerbild von ILIAS übernommen werden.
 btntext_concurrent_users_check#:#Verf&uuml;gbarkeit pr&uuml;fen
 btntext_guest_login_button#:#Als Gast einloggen
+btntext_visavid#:#Visavid-Raum betreten
 btntext_join_meeting#:#Meeting beitreten
 btntext_join_webinar#:#Webinar beitreten
 btntext_start_meeting#:#Meeting starten
@@ -134,6 +135,7 @@ guest_password_input_info#:#Bitte geben Sie hier das Passwort zum Gastlink ein.
 guest_password_input#:#Passwort für Gäste
 headline_welcome_meeting#:#Willkommen im Meetingraum!
 headline_welcome_webinar#:#Willkommen im Webinar!
+headline_welcome_visavid#:#Willkommen im Visavid-Raum!
 hide_recs_until_date#:#Aufzeichnungen nicht anzeigen bis
 hide_recs_until_date_info#:#Aufzeichnungen bis zum hier angegebenen Aufzeichnungsdatum werden nicht angezeigt.
 hide_username_logs#:#Benutzerübersicht verstecken
@@ -165,6 +167,7 @@ info_requirements_om#:#<ul><li>Openmeetings nutzt den offenen Standard WebRTC, d
 info_requirements_partly#:#Wir empfehlen als Browser Google Chrome oder mit Einschränkungen Mozilla Firefox. Ob und inwieweit der aktuell von Ihnen genutzte Browser geeignet ist, den virtuellen Meetingraum zu nutzen, müssen Sie selbst herausfinden. Bitte berichten Sie dem gegebenenfalls vorhandenen technischen Support Ihre Erfahrungen.
 info_requirements_teams#:#<ul><li>Moderierende müssen die Teams App benutzen.</li><li>Teilnehmende können Teams über ihren Browser starten.</li><li>Um Ihren Bildschirm übertragen zu können (Desktopsharing), sollten Sie über eine performante Internetverbindung verfügen. Wir empfehlen Moderatoren und Präsentatoren darüberhinaus, ein kabelgebundenes Netzwerk (kein WLAN) zu nutzen.
 info_requirements_webex#:#<ul><li>Empfohlene Browser: Chrome, Edge, Firefox</li></ul>
+info_requirements_visavid#:#<ul><li>Visavid nutzt den offenen Standard WebRTC. Für Visavid wird ein aktueller Browser benötigt, zum Beispiel Google Chrome, Microsoft Edge, Mozilla Firefox oder Safari.</li><li>Sollten Sie Probleme in der Konferenz feststellen, stellen Sie bitte sicher, dass die <a href="https://visavid.de/hilfe/faq/funktionen-im-raum/warum-kann-der-raum-nicht-betreten-werden/">nötigen Firewall-Freigaben</a> gesetzt sind.</li></ul>
 info_set_owner#:#Eigentümer eingetragen
 info_svr_private_port#:#Beispiel: 443
 info_svr_private_url#:#Entspricht mit Ausnahme von Amazon EC2 stets der öffentlichen URL
@@ -175,13 +178,16 @@ info_svr_salt#:#ssh: bbb-conf --secret
 info_svr_username#:#Beispiel: om_admin
 info_title#:#Dieser Titel wird zur Auswahl des Meeting-Typs bei neuen Objekten angezeigt.
 info_top_moderated_edudip#:#Sie haben Moderationsrechte und können das Webinar starten.
-info_top_moderated_m_bbb#:#Dies ist ein moderierter Raum und Sie können stets erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
-info_top_moderated_m_om#:#Dies ist ein moderierter Raum und Sie können stets erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
+info_top_moderated_m_bbb#:#BBB-Dies ist ein moderierter Raum und Sie können stets erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
+info_top_moderated_m_om#:#OM-Dies ist ein moderierter Raum und Sie können stets erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
+info_top_moderated_m_visavid#:#VVD-Dieser Raum kann nur betreten werden, wenn ein Moderator anwesend ist. Andernfalls gelangen Sie in den Warteraum.
 info_top_moderated_webex#:#Sie haben Moderationsrechte und können das Meeting starten. Dazu benötigen Sie einen Account bei Webex oder bei einer Webex-Hostet-Site. Teilnehmende können erst dann beitreten, wenn das Meeting von einem Moderator gestartet wurde.
 info_top_moderator_bbb#:#<b>Dies ist ein moderierter Raum und Sie haben in diesem Raum die Moderatorfunktion.</b><br/>Personen ohne Moderatorfunktion können erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
 info_top_moderator_om#:#<b>Dies ist ein moderierter Raum und Sie haben in diesem Raum die Moderatorfunktion.</b><br/>Personen ohne Moderatorfunktion können erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
+info_top_moderator_visavid#:#VVD-<b>Dies ist ein moderierter Raum und Sie haben in diesem Raum die Moderatorfunktion.</b><br/>Personen ohne Moderatorfunktion können erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
 info_top_not_moderated_bbb#:#Dieser Meetingraum ist nicht moderiert. Auch Sie haben deshalb eine Moderatorfunktion und folglich erweiterte Rechte. Sie können die Rechte anderer Personen einschränken und auch die Sitzung beenden. Bitte nutzen Sie die erweiterten Rechte verantwortungsbewusst.
 info_top_not_moderated_om#:#Dieser Meetingraum ist nicht moderiert. Auch Sie haben deshalb eine Moderatorfunktion und folglich erweiterte Rechte. Sie können die Rechte anderer Personen einschränken und auch die Sitzung beenden. Bitte nutzen Sie die erweiterten Rechte verantwortungsbewusst.
+info_top_not_moderated_visavid#:#VVD-Dieser Meetingraum ist nicht moderiert. Auch Sie haben deshalb eine Moderatorfunktion und folglich erweiterte Rechte. Sie können die Rechte anderer Personen einschränken und auch die Sitzung beenden. Bitte nutzen Sie die erweiterten Rechte verantwortungsbewusst.
 info_webex_client_id#:#Die Client-Id finden Sie in den Daten zu Ihrer Webex-Integration (z. B. admin.webex.com, developer.webex.com).
 info_webex_client_secret#:#Der Client-Secret wird nach Anlegen / Aktualisieren einer Webex-Integration einmalig angezeigt.
 info_webex_redirect_uri#:#Fügen Sie diese Adresse in den Einstellungen der Integration als Redirect URI hinzu
@@ -295,6 +301,7 @@ recording_only_for_moderated_rooms_default#:#Aufzeichnung nur in moderierten Rä
 recording_only_for_moderated_rooms_default_info#:#Diese Option sollte in den meisten Fällen aktiviert sein. Die Option kommt nur dann zum Tragen, wenn Aufzeichnungen grundsätzlich erlaubt sind.
 recording_only_for_moderated_rooms_info#:#Nur in moderierten Räumen können Personen mit Moderatorfunktion Aufzeichnungen starten.
 recording_warning#:#Für dieses Meeting wurde die Aufzeichnungsoption aktiviert! Mit der aktiven Nutzung des Chat-Systems, dem Einschalten meines persönlichen Mikrofons / meiner Kamera und/oder dem Teilen von Bildschirminhalten willige ich ein, dass diese Informationen bei der Aufzeichnung erfasst und für die spätere Verwendung gespeichert werden.
+recording_warning_visavid#:#Für diesen Raum ist die Aufnahme-Funktion aktiviert. Wenn ich den Raum betrete, bin ich damit einverstanden, dass mein Name, Bild, Ton und meine Chatnachrichten in einer Aufnahme vorkommen können. Durch Deaktivierung von Webcam und Mikrofon sowie den Verzicht auf das Absenden von Chatnachrichten im Hauptraum kann ich verhindern, dass dies Teil der Aufnahme wird.
 recs_locked#:#Aufzeichnung(en) gesperrt
 recs_published#:#Aufzeichnung(en) freigegeben
 recurrence_#:#-

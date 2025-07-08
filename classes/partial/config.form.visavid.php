@@ -51,17 +51,9 @@ $combo->addSubItem($ti);
 // $si->setRequired(true);
 // $combo->addSubItem($si);
 
-// TODO von, bis, dauerhaft?
-
-// participants anonymous
-// TODO bzw Benutzerübersicht in ILIAS?
-// $cb = new ilCheckboxInputGUI($pl->txt("hide_username_logs"), "hide_username_logs");
-// $cb->setRequired(false);
-// $cb->setInfo($pl->txt("hide_username_logs_info"));
-// $combo->addSubItem($cb);
 
 
-// TODO wer soll als Mod reinkommen? Wie?
+// Raum nur mit Moderator betretbar Auswahlmöglichkeit & Voreinstellung
 
 // chat between participants: toggle in room creation
 // $cb = new ilCheckboxInputGUI($pl->txt("private_chat_choose"), "private_chat_choose");
@@ -87,16 +79,13 @@ $combo->addSubItem($ti);
 // $cb->setInfo($pl->txt("recording_default_info"));
 // $combo->addSubItem($cb);
 
+// ILIAS einstellung: Aufzeichnung sofort freigeben
+// auswahl und voreinstellung
+
 // participant webcam: toggle in room cretion
 // participant webcam: default value
-// participant microphone: toggle in room cretion
-// participant microphone: default value
-// participant screen sharing: toggle in room cretion
-// participant screen sharing: default value
-// ... ?
 
-
-//TODO?  guestlink
+// guestlink
 // $cb = new ilCheckboxInputGUI($pl->txt("guestlink_choose"), "guestlink_choose");
 // $cb->setRequired(false);
 // $cb->setInfo($pl->txt("guestlink_choose_info"));
