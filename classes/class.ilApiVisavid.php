@@ -5,6 +5,8 @@ class ilApiVisavid implements ilApiInterface
     
     /** @var bool|ilObjCategory $category */
     public $category;
+    /** @var bool|ilObjGroup $group */
+    private $group;
     private ILIAS\DI\Container $dic;    
     // TODO müsste der (laufende?) Raum sein.. 
     private ?ilObjSession $ilObjSession = null;
@@ -19,20 +21,26 @@ class ilApiVisavid implements ilApiInterface
     {
         global $DIC;
         $this->dic = $DIC;
-        
-        // attention: $a_parent->object might be null when ilApiVisavid is constructed at vc object creation
-        if($a_parent !== null) {
-            $this->object = $a_parent->object;
-            $this->settings = ilMultiVcConfig::getInstance($this->object->getConnId());
-        }
-        
+
+        $this->object = $a_parent->object;
+        $this->settings = ilMultiVcConfig::getInstance($this->object->getConnId());
         $this->setUserRole();
     }
 
-    public function createRoom(string $domain, string $token, string $name, string $description) { 
+    public function getGroup(): bool|ilObject
+    {
+        return $this->group;
+    }
+
+    public function createRoom() { 
+        $domain = $this->settings->getSvrPublicUrl();
+        $token = $this->settings->getSvrSalt();
+        $title = $this->object->getTitle();
+        $desc = $this->object->getDescription();
+
         $data = [
-            "name" => $name,
-            "description" => $description
+            "name" => $title,
+            "description" => $desc
         ];
         $jsonData = json_encode($data);
         $url = $domain . '/api/verwaltung/v1.1.0/rooms';
@@ -65,14 +73,34 @@ class ilApiVisavid implements ilApiInterface
     public function getUrlJoinMeeting() { // TODO inkl unterscheidung mod
         $ilDB = $this->dic->database();
 
+        $moderatorUrl = "";
+        $participantUrl = "";
+        $roomId = "";
+        // TODO weitere Flags speichern und hier abfragen
+
         // TODO Hier mit join alle daten aus data und vvd abrufen und damit werte in klasse setzen wie mod link etc
         // dann in constructor verschieben und urljoinmeeting gibt nur noch die tn/mod url zurück
-        $result = $ilDB->query("SELECT * FROM rep_robj_xmvc_data WHERE id = " . $ilDB->quote($this->object->getRefId(), "integer"));
-        while ($record = $ilDB->fetchAssoc($result)) {
-            var_dump($record["id"]);exit;
+        // Lese bestehende Raumdaten aus
+        $result = $ilDB->query("SELECT v.id, v.url_mod, v.url_par FROM ilias.rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = " . $ilDB->quote($this->object->getId(), "integer")); 
+        while ($row = $ilDB->fetchAssoc($result)) {
+            $moderatorUrl = $row['url_mod'];
+            $participantUrl = $row['url_par'];
+            $roomId = $row['id'];
             // $this->setPrivateChat($settings->isPrivateChatDefault());
         }
-        return "";
+
+        if(!$roomId) {
+            // Raum nicht gefunden - neu erstellen
+            $this->createRoom();
+            $result = $ilDB->query("SELECT v.id, v.url_mod, v.url_par FROM ilias.rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = " . $ilDB->quote($this->object->getId(), "integer")); 
+            while ($row = $ilDB->fetchAssoc($result)) {
+                $moderatorUrl = $row['url_mod'];
+                $participantUrl = $row['url_par'];
+                $roomId = $row['id'];
+            }
+        }
+        // TODO bei einem Fehler beim Join (404?) neuen Raum erstellen? Aber auf alte Aufzeichnungen achten.. bzw die sind dann eh auch schon weg
+        return $moderatorUrl;
     }
 
     // TODO
@@ -141,7 +169,7 @@ class ilApiVisavid implements ilApiInterface
 ////////////////////////////////////////
 ///    COPIED FROM ilApiBBB
 ////////////////////////////////////////
-    /**
+/**
      * @throws ilDatabaseException
      * @throws ilObjectNotFoundException
      */
