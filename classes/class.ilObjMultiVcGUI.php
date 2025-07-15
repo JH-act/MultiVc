@@ -2585,7 +2585,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
     /**
      * @throws ilPluginException
      */
-    private function getShowRecordings(ilApiBBB|ilApiOM $vcObj, array $getRecId = [], bool $returnRawData = false): array|string
+    private function getShowRecordings(ilApiBBB|ilApiOM|ilApiVisavid $vcObj, array $getRecId = [], bool $returnRawData = false): array|string
     {
         global $DIC;
 
