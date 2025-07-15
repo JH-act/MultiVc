@@ -145,36 +145,6 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
         */
     }
 
-    public function createVisavidRoom($conn_id, ilApiVisavid $vcObj, string $name, string $description) {
-        try {
-            global $DIC;
-            $logger = $DIC->logger()->root();
-            $ilDB = $this->db;
-
-            $settings = $this->setDefaultsByPluginConfig($conn_id, true);
-            $domain = $settings->getSvrPublicUrl();
-            $token = $settings->getSvrSalt();
-
-            // create room in visavid
-            $vvd_room = $vcObj->createRoom($domain, $token, $name, $description);
-
-            // persist visavid specific data
-            $a_data = array (
-                'id' => array('string', $vvd_room['id']),
-                'ref_id' => array('string', $this->getId()),
-                'url_mod' => array('string', $vvd_room['dialIn']['moderatorLink']),
-                'url_par' => array('string', $vvd_room['dialIn']['participantLink']),
-            );
-            $ilDB->insert('rep_robj_xmvc_vvd', $a_data);
-
-            // TODO entfernen
-            $logger->info('Created Visavid Room: ' . print_r($vvd_room, true));
-
-        } catch (Exception $e) {
-            $logger->error('Could not create Visavid Room: ' . $e->getMessage());
-        }
-    }
-
     /**
     * Read data from db
     */

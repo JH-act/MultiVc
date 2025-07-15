@@ -77,8 +77,11 @@ class ilApiVisavid implements ilApiInterface
         if ($httpCode !== 200) {
             throw new \Exception("Unexpected HTTP Status code accessing Visavid API: $httpCode");
         }
-        // TODO persist
-        return json_decode($response, true);
+
+        $room = json_decode($response, true);
+        $this->persistVisavidRoom($room['id'], $room['dialIn']['moderatorLink'], $room['dialIn']['participantLink']);
+
+        return $room;
     }
 
     public function getUrlJoinMeeting() { // TODO inkl unterscheidung mod
@@ -172,6 +175,20 @@ class ilApiVisavid implements ilApiInterface
     public function isValidAppointmentUser(): bool
     {
         return true;
+    }
+
+    /**
+     * persist visavid specific data
+     */
+    private function persistVisavidRoom($roomId, $moderatorLink, $participantLink) {
+        $ilDB = $this->dic->database();
+        $a_data = array (
+            'id' => array('string', $roomId),
+            'ref_id' => array('string', $this->object->getId()),
+            'url_mod' => array('string', $moderatorLink),
+            'url_par' => array('string', $participantLink),
+        );
+        $ilDB->insert('rep_robj_xmvc_vvd', $a_data);
     }
 
 
