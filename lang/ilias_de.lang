@@ -426,6 +426,30 @@ vvd_domain#:#Visavid-Domain
 vvd_domain_info#:#URL des Visavid-Systems, wo der Raum erstellt werden soll
 vvd_token#:#API-Token
 vvd_token_info#:#API-Token zur Authentifizierung mit dem Visavid-System
+vvd_setting_meeting_layout#:#Raum-Darstellung
+vvd_setting_meeting_layout_speaker#:#Sprecher
+vvd_setting_meeting_layout_conference#:#Konferenz
+vvd_setting_meeting_layout_favorite#:#Favoriten
+vvd_setting_cb_moderated_choose#:#Auswahlmöglichkeit "Raum nur mit Moderator betretbar"
+vvd_setting_cb_moderated_choose_info#:#Raum nur mit Moderator betretbar
+vvd_setting_cb_moderated_default#:#Default "Raum nur mit Moderator betretbar"
+vvd_setting_cb_moderated_default_info#:#Raum nur mit Moderator betretbar
+vvd_setting_private_chat_choose#:#Auswahlmöglichkeit "Chat"
+vvd_setting_private_chat_choose_info#:#Chat zwischen Teilnehmern erlaubt
+vvd_setting_private_chat_default#:#Default "Chat"
+vvd_setting_private_chat_default_info#:#Chat zwischen Teilnehmern erlaubt
+vvd_setting_recording_choose#:#Auswahlmöglichkeit "Recording"
+vvd_setting_recording_choose_info#:Raum kann aufgezeichnet werden
+vvd_setting_recording_default#:#Default "Recording"
+vvd_setting_recording_default_info#:#Raum kann aufgezeichnet werden
+vvd_setting_cam_only_for_moderator_choose#:#Auswahlmöglichkeit "Webcam"
+vvd_setting_cam_only_for_moderator_choose_info#:#Nur Moderatoren können ihre Webcam aktivieren
+vvd_setting_cam_only_for_moderator_default#:#Default "Webcam"
+vvd_setting_cam_only_for_moderator_default_info#:#Nur Moderatoren können ihre Webcam aktivieren
+vvd_setting_guestlink_choose#:#Auswahlmöglichkeit "Gastlink"
+vvd_setting_guestlink_choose_info#:#Öffentlicher Teilnehmer-Link
+vvd_setting_guestlink_default#:#Default "Gastlink"
+vvd_setting_guestlink_default_info#:#Öffentlicher Teilnehmer-Link
 wait_join_meeting#:#<b>Aktuell ist noch keine Person mit Moderatorfunktion im virtuellen Meetingraum anwesend.<br/>Bitte warten Sie und rufen Sie diese Seite in einer Minute erneut auf.</b>
 wait_join_meeting_edudip#:#Aktuell können Sie keinem Webinar beitreten.
 wait_join_meeting_guest#:#<b>Aktuell ist noch keine Person mit Moderatorfunktion im virtuellen Meetingraum anwesend.<br/>Bitte warten Sie und klicken Sie in einer Minute erneut auf die Schaltfläche 'Meeting beitreten'.</b>

@@ -37,61 +37,34 @@ $combo->addSubItem($ti);
  ** ROOM CONFIG
  ****************/
 
-// default view
-// $si = new ilSelectInputGUI($this->plugin_object->txt('conf_meeting_layout'), 'meeting_layout');
-// $si->setOptions(
-//     array(
-//         ilMultiVcConfig::MEETING_LAYOUT_CUSTOM => $this->plugin_object->txt('conf_meeting_layout_' . ilMultiVcConfig::MEETING_LAYOUT_CUSTOM),
-//         ilMultiVcConfig::MEETING_LAYOUT_SMART => $this->plugin_object->txt('conf_meeting_layout_' . ilMultiVcConfig::MEETING_LAYOUT_SMART),
-//         ilMultiVcConfig::MEETING_LAYOUT_PRESENTATION_FOCUS => $this->plugin_object->txt('conf_meeting_layout_' . ilMultiVcConfig::MEETING_LAYOUT_PRESENTATION_FOCUS),
-//         ilMultiVcConfig::MEETING_LAYOUT_VIDEO_FOCUS => $this->plugin_object->txt('conf_meeting_layout_' . ilMultiVcConfig::MEETING_LAYOUT_VIDEO_FOCUS)
-//     )
-// );
-// $si->setInfo($this->plugin_object->txt('info_meeting_layout'));
-// $si->setRequired(true);
-// $combo->addSubItem($si);
+$si = new ilSelectInputGUI($this->plugin_object->txt('vvd_setting_meeting_layout'), 'meeting_type');
+$si->setOptions(
+    array(
+        'SPEAKER' => $this->plugin_object->txt('vvd_setting_meeting_layout' . '_speaker'),
+        'CONFERENCE' => $this->plugin_object->txt('vvd_setting_meeting_layout' . '_conference'),
+        'FAVORITE' => $this->plugin_object->txt('vvd_setting_meeting_layout' . '_favorite')
+        )
+);
+$si->setRequired(true);
+$combo->addSubItem($si);
 
+$combo->addSubItem(addCheckbox($pl, 'cb_moderated_choose'));
+$combo->addSubItem(addCheckbox($pl, 'cb_moderated_default'));
+$combo->addSubItem(addCheckbox($pl, 'private_chat_choose'));
+$combo->addSubItem(addCheckbox($pl, 'private_chat_default'));
 
+$combo->addSubItem(addCheckbox($pl, 'recording_choose'));
+$combo->addSubItem(addCheckbox($pl, 'recording_default'));
+$combo->addSubItem(addCheckbox($pl, 'cam_only_for_moderator_choose'));
+$combo->addSubItem(addCheckbox($pl, 'cam_only_for_moderator_default'));
+$combo->addSubItem(addCheckbox($pl, 'guestlink_choose'));
+$combo->addSubItem(addCheckbox($pl, 'guestlink_default'));
 
-// Raum nur mit Moderator betretbar Auswahlmöglichkeit & Voreinstellung
+function addCheckbox($pl, $setting) {
+    $prefix = "vvd_setting_";
+    $cb = new ilCheckboxInputGUI($pl->txt($prefix . $setting), $setting);
+    $cb->setRequired(false);
+    $cb->setInfo($pl->txt($prefix . $setting . "_info"));
 
-// chat between participants: toggle in room creation
-// $cb = new ilCheckboxInputGUI($pl->txt("private_chat_choose"), "private_chat_choose");
-// $cb->setRequired(false);
-// $cb->setInfo($pl->txt("private_chat_choose_info"));
-// $combo->addSubItem($cb);
-
-// chat between participants: default value
-// $cb = new ilCheckboxInputGUI($pl->txt("private_chat_default"), "private_chat_default");
-// $cb->setRequired(false);
-// $cb->setInfo($pl->txt("private_chat_default_info"));
-// $combo->addSubItem($cb);
-
-// recording: toggle in room ceation
-// $cb = new ilCheckboxInputGUI($pl->txt("recording_choose"), "recording_choose");
-// $cb->setRequired(false);
-// $cb->setInfo($pl->txt("recording_choose_info"));
-// $combo->addSubItem($cb);
-
-// recording: default value
-// $cb = new ilCheckboxInputGUI($pl->txt("recording_default"), "recording_default");
-// $cb->setRequired(false);
-// $cb->setInfo($pl->txt("recording_default_info"));
-// $combo->addSubItem($cb);
-
-// ILIAS einstellung: Aufzeichnung sofort freigeben
-// auswahl und voreinstellung
-
-// participant webcam: toggle in room cretion
-// participant webcam: default value
-
-// guestlink
-// $cb = new ilCheckboxInputGUI($pl->txt("guestlink_choose"), "guestlink_choose");
-// $cb->setRequired(false);
-// $cb->setInfo($pl->txt("guestlink_choose_info"));
-// $combo->addSubItem($cb);
-
-// $cb = new ilCheckboxInputGUI($pl->txt("guestlink_default"), "guestlink_default");
-// $cb->setRequired(false);
-// $cb->setInfo($pl->txt("guestlink_default_info"));
-// $combo->addSubItem($cb);
+    return $cb;
+}
