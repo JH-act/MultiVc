@@ -1507,7 +1507,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
     public function confirmedDelete(): void
     {
-        $this->object->doDelete();
+        $this->object->doDelete($this->platform);
     }
 
     public function getBuddyPicture(): string

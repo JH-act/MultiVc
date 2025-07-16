@@ -178,6 +178,11 @@ class ilApiVisavid implements ilApiInterface
      */
     private function persistVisavidRoom($roomId, $moderatorLink, $participantLink) {
         $ilDB = $this->dic->database();
+
+        // remove existing entries for this ref_id
+        $ilDB->manipulate("DELETE FROM rep_robj_xmvc_vvd WHERE ref_id = " . $ilDB->quote($this->object->getId(), "integer")); 
+
+        // persist new entry
         $a_data = array (
             'id' => array('string', $roomId),
             'ref_id' => array('string', $this->object->getId()),
