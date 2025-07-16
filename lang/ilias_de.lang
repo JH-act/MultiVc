@@ -430,26 +430,26 @@ vvd_setting_meeting_layout#:#Raum-Darstellung
 vvd_setting_meeting_layout_speaker#:#Sprecher
 vvd_setting_meeting_layout_conference#:#Konferenz
 vvd_setting_meeting_layout_favorite#:#Favoriten
-vvd_setting_cb_moderated_choose#:#Auswahlmöglichkeit "Raum nur mit Moderator betretbar"
-vvd_setting_cb_moderated_choose_info#:#Raum nur mit Moderator betretbar
-vvd_setting_cb_moderated_default#:#Default "Raum nur mit Moderator betretbar"
-vvd_setting_cb_moderated_default_info#:#Raum nur mit Moderator betretbar
-vvd_setting_private_chat_choose#:#Auswahlmöglichkeit "Chat"
-vvd_setting_private_chat_choose_info#:#Chat zwischen Teilnehmern erlaubt
-vvd_setting_private_chat_default#:#Default "Chat"
-vvd_setting_private_chat_default_info#:#Chat zwischen Teilnehmern erlaubt
-vvd_setting_recording_choose#:#Auswahlmöglichkeit "Recording"
-vvd_setting_recording_choose_info#:Raum kann aufgezeichnet werden
-vvd_setting_recording_default#:#Default "Recording"
-vvd_setting_recording_default_info#:#Raum kann aufgezeichnet werden
-vvd_setting_cam_only_for_moderator_choose#:#Auswahlmöglichkeit "Webcam"
-vvd_setting_cam_only_for_moderator_choose_info#:#Nur Moderatoren können ihre Webcam aktivieren
-vvd_setting_cam_only_for_moderator_default#:#Default "Webcam"
-vvd_setting_cam_only_for_moderator_default_info#:#Nur Moderatoren können ihre Webcam aktivieren
-vvd_setting_guestlink_choose#:#Auswahlmöglichkeit "Gastlink"
-vvd_setting_guestlink_choose_info#:#Öffentlicher Teilnehmer-Link
-vvd_setting_guestlink_default#:#Default "Gastlink"
-vvd_setting_guestlink_default_info#:#Öffentlicher Teilnehmer-Link
+vvd_setting_cb_moderated_choose#:#moderierter Raum: Auswahlmöglichkeit
+vvd_setting_cb_moderated_choose_info#:#Aktivieren Sie diese Option wenn Benutzer mit Schreibrechten unter Einstellungen die Auswahl 'moderierter Raum' haben sollen.
+vvd_setting_cb_moderated_default#:#moderierter Raum: Voreinstellung
+vvd_setting_cb_moderated_default_info#:#Aktivieren Sie diese Option wenn neue Räume als moderierte Räume angelegt werden sollen.
+vvd_setting_private_chat_choose#:#Privaten Chat erlauben: Auswahlmöglichkeit
+vvd_setting_private_chat_choose_info#:#Aktivieren Sie diese Option, wenn Benutzer mit Schreibrechten unter Einstellungen die Auswahl 'Privaten Chat erlauben' haben sollen.
+vvd_setting_private_chat_default#:#Privaten Chat erlauben: Voreinstellung
+vvd_setting_private_chat_default_info#:#Sofern aktiviert, können auch Personen ohne Moderatorfunktion untereinander einen privaten Chat führen. Personen mit Moderatorfunktion sehen diese Chats nicht. Da Personen mit Moderatorfunktion jederzeit private Chats unterbinden können, solle diese Option in den meisten Fällen aktiviert sein.
+vvd_setting_recording_choose#:#Aufzeichnungen erlauben: Auswahlmöglichkeit
+vvd_setting_recording_choose_info#:#Aktivieren Sie diese Option, wenn Benutzer mit Schreibrechten unter Einstellungen die Auswahl 'Aufzeichnungen erlauben' haben sollen. Diese Funktion sollte in den meisten Fällen deaktiviert sein.
+vvd_setting_recording_default#:#Aufzeichnungen erlauben: Voreinstellung
+vvd_setting_recording_default_info#:#Diese Option sollte in den meisten Fällen deaktiviert sein, damit Personen nicht die Aufzeichnungfunktion im virtuellen Raum nutzen können.
+vvd_setting_cam_only_for_moderator_choose#:#Kamera nur für Moderatoren: Auswahlmöglichkeit
+vvd_setting_cam_only_for_moderator_choose_info#:#Aktivieren Sie diese Option, wenn Benutzer mit Schreibrechten unter Einstellungen die Auswahl 'Kamera nur für Moderatoren' haben sollen. Diese Option sollte in den meisten Fällen aktiviert sein.
+vvd_setting_cam_only_for_moderator_default#:#Kamera nur für Moderatoren: Voreinstellung
+vvd_setting_cam_only_for_moderator_default_info#:#Diese Option sollte in den meisten Fällen deaktiviert sein und nur aktiviert werden, wenn hohe Teilnehmerzahlen zu erwarten sind. Moderatoren haben stets die Möglichkeit, während einer Sitzung in Visavid die Einstellung zu ändern.
+vvd_setting_guestlink_choose#:#Gastlink Auswahlm&ouml;glichkeit
+vvd_setting_guestlink_choose_info#:#Aktivieren Sie diese Option, wenn Benutzer mit Schreibrechten unter Einstellungen die Auswahl 'Gastlink erlauben' haben sollen.
+vvd_setting_guestlink_default#:#Gastlink Voreinstellung
+vvd_setting_guestlink_default_info#:#Diese Option sollte in den meisten Fällen deaktiviert sein, um eine Nutzung durch Unbefugte auszuschließen.
 wait_join_meeting#:#<b>Aktuell ist noch keine Person mit Moderatorfunktion im virtuellen Meetingraum anwesend.<br/>Bitte warten Sie und rufen Sie diese Seite in einer Minute erneut auf.</b>
 wait_join_meeting_edudip#:#Aktuell können Sie keinem Webinar beitreten.
 wait_join_meeting_guest#:#<b>Aktuell ist noch keine Person mit Moderatorfunktion im virtuellen Meetingraum anwesend.<br/>Bitte warten Sie und klicken Sie in einer Minute erneut auf die Schaltfläche 'Meeting beitreten'.</b>
