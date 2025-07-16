@@ -32,7 +32,7 @@ class ilApiVisavid implements ilApiInterface
         return $this->group;
     }
 
-    public function createRoom() {
+    public function createRoom($id = null) {
         $domain = $this->settings->getSvrPublicUrl();
         $token = $this->settings->getSvrSalt();
 
@@ -53,62 +53,58 @@ class ilApiVisavid implements ilApiInterface
             "enterWithoutModerator" => !$isModerated,
             "recording" => $isRecordingAllowed
         ];
+
         $jsonData = json_encode($data);
-        $url = $domain . '/api/verwaltung/v1.1.0/rooms';
+        $url = $domain . '/api/verwaltung/v1.1.0/rooms' . ($id ? '/' . $id : '');
         $ch = curl_init($url);
 
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $id === null ? "POST" : "PATCH");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Accept: application/json',
             'Authorization: Bearer ' . $token,
             'Content-Length: ' . strlen($jsonData)
         ]);
-        
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
 
         $response = curl_exec($ch);
         curl_close($ch);
 
         if (curl_errno($ch)) {
-            throw new \Exception('cURL error accessing Visavid API: ' . curl_error($ch));
+            throw new \Exception('cURL error accessing Visavid API (id: ' . $id .'): ' . curl_error($ch));
         }
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode !== 200) {
-            throw new \Exception("Unexpected HTTP Status code accessing Visavid API: $httpCode");
+        if($id !== null && $httpCode === 404) {
+            // Raum am Visavid-System nicht mehr verfügbar
+            // TODO delete Eintrag in DB, Recordings etc
+            return $this->createRoom();    
+        }
+        else if ($httpCode !== 200) {
+            throw new \Exception('Unexpected HTTP Status code accessing Visavid API (id: ' . $id .'): $httpCode');
         }
 
         $room = json_decode($response, true);
-        $this->persistVisavidRoom($room['id'], $room['dialIn']['moderatorLink'], $room['dialIn']['participantLink']);
+        if($id === null) {
+            // TODO nur noch id persistieren
+            $this->persistVisavidRoom($room['id'], $room['dialIn']['moderatorLink'], $room['dialIn']['participantLink']);
+        }
 
         return $room;
     }
 
-    public function getUrlJoinMeeting() { // TODO inkl unterscheidung mod
+    public function getUrlJoinMeeting() {
         $ilDB = $this->dic->database();
-
-        $joinUrl = null;
-
-        // TODO Hier mit join alle daten aus data und vvd abrufen und damit werte in klasse setzen wie mod link etc
-        // dann in constructor verschieben und urljoinmeeting gibt nur noch die tn/mod url zurück
-        // Lese bestehende Raumdaten aus
-        $result = $ilDB->query("SELECT v.id, v.url_mod, v.url_par FROM ilias.rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = " . $ilDB->quote($this->object->getId(), "integer")); 
+        $roomId = null;
+        
+        $result = $ilDB->query("SELECT v.id FROM ilias.rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = " . $ilDB->quote($this->object->getId(), "integer")); 
         while ($row = $ilDB->fetchAssoc($result)) {
-            $joinUrl = $this->isUserModerator() ? $row['url_mod'] : $row['url_par'];
+            $roomId = $row['id'];
         }
 
-        if (!$joinUrl) {
-            // Raum nicht gefunden - neu erstellen
-            $room = $this->createRoom();
-            $joinUrl = $room['dialIn'][$this->isUserModerator() ? 'moderatorLink' : 'participantLink'];
-        }
-
-        if (!$joinUrl) {
-            throw new \Exception('Could not find join url');
-        }
-
-        // TODO bei einem Fehler beim Join (404?) neuen Raum erstellen? Aber auf alte Aufzeichnungen achten.. bzw die sind dann eh auch schon weg
-        return $joinUrl;
+        // Raum erstellen oder aktualisieren
+        $room = $this->createRoom($roomId);
+        return $room['dialIn'][$this->isUserModerator() ? 'moderatorLink' : 'participantLink'];
     }
 
     public function getRecordings() {

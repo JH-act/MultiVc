@@ -157,7 +157,11 @@ class ilMultiVcConfig
             'recordChoose'
         ],
         'visavid' => [
-
+            'moderatedChoose',
+            'privateChatChoose',
+            'recordChoose',
+            'camOnlyForModeratorChoose',
+            'guestlinkChoose'
         ]
     ];
 
