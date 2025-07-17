@@ -46,19 +46,19 @@ class ilApiVisavid implements ilApiInterface
         $isGuestlink = $this->object->isGuestlink();
 
         $data = [
-            "name" => $title,
-            "description" => $desc,
-            "webcam" => !$isCamOnlyForModerator,
-            "chat1to1" => $isPrivateChat,
-            "enterWithoutModerator" => !$isModerated,
-            "recording" => $isRecordingAllowed
+            'name' => $title,
+            'description' => $desc,
+            'webcam' => !$isCamOnlyForModerator,
+            'chat1to1' => $isPrivateChat,
+            'enterWithoutModerator' => !$isModerated,
+            'recording' => $isRecordingAllowed
         ];
 
         $jsonData = json_encode($data);
         $url = $domain . '/api/verwaltung/v1.1.0/rooms' . ($id ? '/' . $id : '');
         $ch = curl_init($url);
 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $id === null ? "POST" : "PATCH");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $id === null ? 'POST' : 'PATCH');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -81,7 +81,7 @@ class ilApiVisavid implements ilApiInterface
             return $this->createRoom();    
         }
         else if ($httpCode !== 200) {
-            throw new \Exception('Unexpected HTTP Status code accessing Visavid API (id: ' . $id .'): $httpCode');
+            throw new \Exception('Unexpected HTTP Status code accessing Visavid API (id: ' . $id .'): ' . $httpCode);
         }
 
         $room = json_decode($response, true);
@@ -97,7 +97,7 @@ class ilApiVisavid implements ilApiInterface
         $ilDB = $this->dic->database();
         $roomId = null;
         
-        $result = $ilDB->query("SELECT v.id FROM ilias.rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = " . $ilDB->quote($this->object->getId(), "integer")); 
+        $result = $ilDB->query('SELECT v.id FROM ilias.rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = ' . $ilDB->quote($this->object->getId(), 'integer')); 
         while ($row = $ilDB->fetchAssoc($result)) {
             $roomId = $row['id'];
         }
@@ -107,11 +107,48 @@ class ilApiVisavid implements ilApiInterface
         return $room['dialIn'][$this->isUserModerator() ? 'moderatorLink' : 'participantLink'];
     }
 
-    public function getRecordings() {
-        return [];
+    private function getRecordingsForSession($roomId, $sessId) {
+        $res = $this->curlGet('recordings', $roomId, $sessId);
+        $recList = [];
+        // map recordings to MultiVC Recording list
+        foreach($res as $rec) {
+            $recList[] = [
+                'BEGIN' => (new DateTimeImmutable($rec['start']))->getTimestamp(),
+                'END' => (new DateTimeImmutable($rec['stop']))->getTimestamp(),
+                'SESSION_ID' => $rec['id'],
+                'FILE_SIZE' => $rec['size'],
+                'ROOM_ID' => $roomId
+            ];
+        }
+        return $recList;
     }
 
-    // TODO
+    public function downloadRecording($roomId, $recId) {
+        $this->curlGet('download_recording', $roomId, $recId);
+    }
+
+    /**
+     * Load recordings for all recorded sessions of the room
+     */
+    public function getRecordings() {
+        // load room sessions with recordings
+        // TODO
+        $roomId = '709df8f2-a220-49fd-9eca-0c82b2e9e1f8';
+        $sess = $this->curlGet('sessions', $roomId);
+        
+        $recList = [];
+        
+        // load corresponding recordings
+        foreach($sess as $s) {
+            $recList = array_merge($recList, $this->getRecordingsForSession($roomId, $s['id']));
+        }
+
+        // GET url/recid ist Download-Endpoint, DEL delete
+
+
+        return $recList;
+    }
+
     public function hasSessionObject(): bool
     {
         return !!$this->ilObjSession;
@@ -180,7 +217,7 @@ class ilApiVisavid implements ilApiInterface
         $ilDB = $this->dic->database();
 
         // remove existing entries for this ref_id
-        $ilDB->manipulate("DELETE FROM rep_robj_xmvc_vvd WHERE ref_id = " . $ilDB->quote($this->object->getId(), "integer")); 
+        $ilDB->manipulate('DELETE FROM rep_robj_xmvc_vvd WHERE ref_id = ' . $ilDB->quote($this->object->getId(), 'integer')); 
 
         // persist new entry
         $a_data = array (
@@ -190,6 +227,54 @@ class ilApiVisavid implements ilApiInterface
             'url_par' => array('string', $participantLink),
         );
         $ilDB->insert('rep_robj_xmvc_vvd', $a_data);
+    }
+
+    private function buildUrl(string $type, string $roomId, ?string $id = null) {
+        $domain = $this->settings->getSvrPublicUrl();
+        $base = $domain . '/api/verwaltung/v1.1.0/rooms/' . $roomId;
+        switch ($type) {
+            case 'sessions': 
+                return $base . '/sessions/with-recordings';
+            case 'recordings': 
+                return $base . '/sessions/' . $id . '/recordings';
+            case 'download_recording': 
+                return $base . '/recordings/' . $id; 
+            default:
+                return null;
+        }
+    }
+
+    private function curlGet(string $type, string $roomId, ?string $id = null) {
+        $token = $this->settings->getSvrSalt();
+        $url = $this->buildUrl($type, $roomId, $id);
+        if(!$url) {
+            throw new \Exception('Error when building URL for Visavid API request');
+        }
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json',
+            'Authorization: Bearer ' . $token
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        if (curl_errno($ch)) {
+            throw new \Exception('cURL error for GET Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', id: ' . $id .'): ' . curl_error($ch));
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if($httpCode === 404) {
+            return null;
+        }
+        else if ($httpCode !== 200) {
+            throw new \Exception('Unexpected HTTP Status code for GET Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', id: ' . $id .'): ' . $httpCode);
+        }
+
+        return json_decode($response, true);
     }
 
 

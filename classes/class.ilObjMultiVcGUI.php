@@ -2197,23 +2197,27 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         try {
             $vvd = new ilApiVisavid($this);
         } catch (Exception $e) {
-            var_dump($e); exit;
             $vvd = new StdClass();
         }
 
         switch(true) {
+            $query = $this->dic->http()->wrapper()->query();
             case !($vvd instanceof ilApiVisavid) || !ilObjMultiVcAccess::checkConnAvailability($this->obj_id):
                 $this->showContentUnavailable();
                 break;
-            case $this->dic->http()->wrapper()->query()->has('startVISAVID') && $this->dic->http()->wrapper()->query()->retrieve('startVISAVID', $this->dic->refinery()->kindlyTo()->int()) === 1:
+            case $query->has('startVISAVID') && $query->retrieve('startVISAVID', $this->dic->refinery()->kindlyTo()->int()) === 1:
                 // Page was loaded with params to start visavid room
                 $this->redirectToPlatformByUrl($vvd->getUrlJoinMeeting(), $vvd);
                 break;
+            case $query->has('recordingVisavid') && $query->retrieve('recordingVisavid', $this->dic->refinery()->kindlyTo()->int()) === 1:
+                // Page was loaded with params to download recording
+                var $roomId = $query->retrieve('roomId', $this->dic->refinery()->kindlyTo()->string());
+                var $sessionId = $query->retrieve('sessionId', $this->dic->refinery()->kindlyTo()->string());
+                $vvd->downloadRecording($roomId, $sessionId);
             default:
                 $this->showContentDefault($vvd, false);
                 break;
         }
-
     }
 
     /**
@@ -2609,7 +2613,10 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
         $table = $this->isBBB
             ? new ilMultiVcTableGUIRecordingsBBB($this, $this->dic->ctrl()->getCmd())
-            : new ilMultiVcRecordingsTableGUI($this, $this->dic->ctrl()->getCmd());
+            : ($this->isVisavid 
+                ? new ilMultiVcTableGUIRecordingsVVD($this, $this->dic->ctrl()->getCmd())
+                : new ilMultiVcRecordingsTableGUI($this, $this->dic->ctrl()->getCmd()));
+        
         $table->setData($table->addRowSelector($recData));
         $tblAppend = $this->isBBB && !($this->vcObj->isUserModerator() || $this->vcObj->isUserAdmin())
             ? $this->getUiCompMsgBox('info', $this->txt('hint_availability_recs'))
