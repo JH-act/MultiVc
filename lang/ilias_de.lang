@@ -178,16 +178,16 @@ info_svr_salt#:#ssh: bbb-conf --secret
 info_svr_username#:#Beispiel: om_admin
 info_title#:#Dieser Titel wird zur Auswahl des Meeting-Typs bei neuen Objekten angezeigt.
 info_top_moderated_edudip#:#Sie haben Moderationsrechte und können das Webinar starten.
-info_top_moderated_m_bbb#:#BBB-Dies ist ein moderierter Raum und Sie können stets erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
-info_top_moderated_m_om#:#OM-Dies ist ein moderierter Raum und Sie können stets erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
-info_top_moderated_m_visavid#:#VVD-Dieser Raum kann nur betreten werden, wenn ein Moderator anwesend ist. Andernfalls gelangen Sie in den Warteraum.
+info_top_moderated_m_bbb#:#Dies ist ein moderierter Raum und Sie können stets erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
+info_top_moderated_m_om#:#Dies ist ein moderierter Raum und Sie können stets erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
+info_top_moderated_m_visavid#:#Dieser Raum kann nur betreten werden, wenn ein Moderator anwesend ist. Andernfalls gelangen Sie in den Warteraum.
 info_top_moderated_webex#:#Sie haben Moderationsrechte und können das Meeting starten. Dazu benötigen Sie einen Account bei Webex oder bei einer Webex-Hostet-Site. Teilnehmende können erst dann beitreten, wenn das Meeting von einem Moderator gestartet wurde.
 info_top_moderator_bbb#:#<b>Dies ist ein moderierter Raum und Sie haben in diesem Raum die Moderatorfunktion.</b><br/>Personen ohne Moderatorfunktion können erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
 info_top_moderator_om#:#<b>Dies ist ein moderierter Raum und Sie haben in diesem Raum die Moderatorfunktion.</b><br/>Personen ohne Moderatorfunktion können erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
-info_top_moderator_visavid#:#VVD-<b>Dies ist ein moderierter Raum und Sie haben in diesem Raum die Moderatorfunktion.</b><br/>Personen ohne Moderatorfunktion können erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
+info_top_moderator_visavid#:#<b>Dies ist ein moderierter Raum und Sie haben in diesem Raum die Moderatorfunktion.</b><br/>Personen ohne Moderatorfunktion können erst dann in den Meetingraum gelangen, wenn eine Person mit Moderatorfunktion im Raum ist.
 info_top_not_moderated_bbb#:#Dieser Meetingraum ist nicht moderiert. Auch Sie haben deshalb eine Moderatorfunktion und folglich erweiterte Rechte. Sie können die Rechte anderer Personen einschränken und auch die Sitzung beenden. Bitte nutzen Sie die erweiterten Rechte verantwortungsbewusst.
 info_top_not_moderated_om#:#Dieser Meetingraum ist nicht moderiert. Auch Sie haben deshalb eine Moderatorfunktion und folglich erweiterte Rechte. Sie können die Rechte anderer Personen einschränken und auch die Sitzung beenden. Bitte nutzen Sie die erweiterten Rechte verantwortungsbewusst.
-info_top_not_moderated_visavid#:#VVD-Dieser Meetingraum ist nicht moderiert. Auch Sie haben deshalb eine Moderatorfunktion und folglich erweiterte Rechte. Sie können die Rechte anderer Personen einschränken und auch die Sitzung beenden. Bitte nutzen Sie die erweiterten Rechte verantwortungsbewusst.
+info_top_not_moderated_visavid#:#Dieser Meetingraum ist nicht moderiert. Auch Sie haben deshalb eine Moderatorfunktion und folglich erweiterte Rechte. Sie können die Rechte anderer Personen einschränken und auch die Sitzung beenden. Bitte nutzen Sie die erweiterten Rechte verantwortungsbewusst.
 info_webex_client_id#:#Die Client-Id finden Sie in den Daten zu Ihrer Webex-Integration (z. B. admin.webex.com, developer.webex.com).
 info_webex_client_secret#:#Der Client-Secret wird nach Anlegen / Aktualisieren einer Webex-Integration einmalig angezeigt.
 info_webex_redirect_uri#:#Fügen Sie diese Adresse in den Einstellungen der Integration als Redirect URI hinzu
