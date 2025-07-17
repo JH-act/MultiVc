@@ -209,7 +209,7 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
     /**
     * Update data
     */
-    public function doUpdate(): void // update room
+    public function doUpdate(): void
     {
         $ilDB = $this->db;
         $a_data = array(
@@ -323,7 +323,7 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
     /**
      * Do Cloning
      */
-    public function doClone(ilObject2 $new_obj, int $a_target_id, ?int $a_copy_id) // clone room
+    public function doClone(ilObject2 $new_obj, int $a_target_id, ?int $a_copy_id)
     {
         $ilDB = $this->db;
         $a_data = array(

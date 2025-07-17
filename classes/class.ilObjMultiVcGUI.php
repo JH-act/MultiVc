@@ -172,8 +172,6 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
      */
     protected function afterConstructor(): void
     {
-        // TODO wird auch aufgerufen bei Erzeugung eines Objekts: dort ist $this->object aber NULL
-
         // anything needed after object has been constructed
         //   $ilCtrl->saveParameter($this, array("my_id"));
         //$this->deactivateCreationForm(ilObject2GUI::CFORM_IMPORT);
@@ -910,12 +908,10 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
         $form = $this->initCreateForm('xmvc');
         $form->checkInput();
-        $connId = $form->getInput("conn_id");
 
         $new_object->setAuthUser($DIC->user()->getEmail());
-        $new_object->createRoom((int) $form->getInput("online"), $connId);
+        $new_object->createRoom((int) $form->getInput("online"), $form->getInput("conn_id"));
         $new_object->fillEmptyPasswordsBBBVCR();
-
         //var_dump($newObj); exit;
         ilSession::set('createNewObj', true);
         ilSession::set('doNotShowResetedTokens', true);
@@ -992,7 +988,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
     public function formItem(string $item): ilCheckboxInputGUI|ilHiddenInputGUI
     {
-        $text = "rep_robj_xmvc_" . $item; // hier was? wo sind wir hier?
+        $text = "rep_robj_xmvc_" . $item;
         $info = $text . "_info";
         if($this->isTeams) {
             if ($item == 'private_chat') {
@@ -1309,7 +1305,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
     /**
      * Update properties
      */
-    public function updateProperties() // update props
+    public function updateProperties()
     {
         $ilCtrl = $this->dic->ctrl();
 
@@ -2200,8 +2196,8 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
             $vvd = new StdClass();
         }
 
+        $query = $this->dic->http()->wrapper()->query();
         switch(true) {
-            $query = $this->dic->http()->wrapper()->query();
             case !($vvd instanceof ilApiVisavid) || !ilObjMultiVcAccess::checkConnAvailability($this->obj_id):
                 $this->showContentUnavailable();
                 break;
@@ -2211,9 +2207,9 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 break;
             case $query->has('recordingVisavid') && $query->retrieve('recordingVisavid', $this->dic->refinery()->kindlyTo()->int()) === 1:
                 // Page was loaded with params to download recording
-                var $roomId = $query->retrieve('roomId', $this->dic->refinery()->kindlyTo()->string());
-                var $sessionId = $query->retrieve('sessionId', $this->dic->refinery()->kindlyTo()->string());
-                $vvd->downloadRecording($roomId, $sessionId);
+                $roomId = $query->retrieve('roomId', $this->dic->refinery()->kindlyTo()->string());
+                $sessionId = $query->retrieve('sessionId', $this->dic->refinery()->kindlyTo()->string());
+                $vvd->downloadRecording($sessionId);
             default:
                 $this->showContentDefault($vvd, false);
                 break;
@@ -2480,6 +2476,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
     private function getJoinContent(ilApiBBB|ilApiOM|ilApiWebex|ilApiTeams|ilApiVisavid $vcObj): string
     {
         $sessAuthUserIsValid = true;
+
         $showBtn = (
             (!$this->object->get_moderated() /* && $vcObj->isValidAppointmentUser() */) ||
             //( $this->object->get_moderated() && $bbb->hasSessionObject() && $bbb->isValidAppointmentUser() ) ||
@@ -2639,7 +2636,8 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         $c_gui->setConfirm($this->lng->txt("confirm"), "deleteRecords");
 
         // add items to delete
-        $vcObj = ilMultiVcConfig::getInstance($this->object->getConnId())->getShowContent() === 'bbb' ? new ilApiBBB($this) : new ilApiOM($this);
+        $showContent = ilMultiVcConfig::getInstance($this->object->getConnId())->getShowContent();
+        $vcObj = $showContent === 'bbb' ? new ilApiBBB($this) : ($showContent === 'visavid' ? new ilApiVisavid($this) : new ilApiOM($this));
         $recIds = $this->dic->http()->wrapper()->post()->retrieve('rec_id', $this->dic->refinery()->kindlyTo()->listOf($this->dic->refinery()->kindlyTo()->string()));
         $records = $this->getShowRecordings($vcObj, $recIds, true);
         foreach ($recIds as $recId) {
@@ -2648,7 +2646,11 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
             #            die(var_dump($records[$key]));
             $records[$key]['START_TIME'] = new ilDateTime($records[$key]['START_TIME'], IL_CAL_UNIX);
             $records[$key]['END_TIME'] = new ilDateTime($records[$key]['END_TIME'], IL_CAL_UNIX);
-            $cGuiItemContent = ilDatePresentation::formatDate($records[$key]['START_TIME']) . ' - ' . ilDatePresentation::formatDate($records[$key]['END_TIME']) . ' &nbsp; ' . $records[$key]['playback'];
+            $cGuiItemContent = ilDatePresentation::formatDate($records[$key]['START_TIME']) . ' - ' . ilDatePresentation::formatDate($records[$key]['END_TIME']);
+            if($showContent !== 'visavid') {
+                $cGuiItemContent = $cGuiItemContent . ' &nbsp; ' . $records[$key]['playback'];
+            }
+
             $c_gui->addItem("rec_id[]", $recId, $cGuiItemContent);
         }
 
@@ -2693,13 +2695,14 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
 
 
         try {
-            $vcObj = ilMultiVcConfig::getInstance($this->object->getConnId())->getShowContent() === 'bbb' ? new ilApiBBB($this) : new ilApiOM($this);
+            $showContent = ilMultiVcConfig::getInstance($this->object->getConnId())->getShowContent();
+            $vcObj = $showContent === 'bbb' ? new ilApiBBB($this) : ($showContent === 'visavid' ? new ilApiVisavid($this) : new ilApiOM($this));
             //$bbb = new ilApiBBB($this);
         } catch (Exception $e) {
             $vcObj = new StdClass();
         }
 
-        if(!($vcObj instanceof ilApiBBB) && !($vcObj instanceof ilApiOM)) {
+        if(!($vcObj instanceof ilApiBBB) && !($vcObj instanceof ilApiOM) && !($vcObj instanceof ilApiVisavid)) {
             return $success;
         }
 

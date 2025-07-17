@@ -9,19 +9,20 @@
 class ilMultiVcTableGUIRecordingsVVD extends ilTable2GUI
 {
     private ILIAS\DI\Container $dic;
+    protected ?object $parent_obj;
 
     public function __construct(object $a_parent_obj, string $a_parent_cmd = '', string $a_template_context = '')
     {
         global $DIC;
-
         $this->dic = $DIC;
+        $this->parent_obj = $a_parent_obj;
 
         $this->setId('table_recordings');
         parent::__construct($a_parent_obj, $a_parent_cmd, $a_template_context);
 
         $this->addColumn($this->dic->language()->txt('rep_robj_xmvc_select'), '', '5%');
-        $this->addColumn($this->dic->language()->txt('rep_robj_xmvc_starttime'), 'BEGIN', '');
-        $this->addColumn($this->dic->language()->txt('rep_robj_xmvc_endtime'), 'END', '');
+        $this->addColumn($this->dic->language()->txt('rep_robj_xmvc_starttime'), 'START_TIME', '');
+        $this->addColumn($this->dic->language()->txt('rep_robj_xmvc_endtime'), 'END_TIME', '');
         $this->addColumn($this->dic->language()->txt('rep_robj_xmvc_vvd_filesize'), 'FILE_SIZE', '');
         $this->addColumn('', 'DOWNLOAD', '');
 
@@ -32,7 +33,7 @@ class ilMultiVcTableGUIRecordingsVVD extends ilTable2GUI
         $this->setExternalSegmentation(false);
         $this->setShowRowsSelector(false);
 
-        $this->setDefaultOrderField('BEGIN');
+        $this->setDefaultOrderField('START_TIME');
         $this->setDefaultOrderDirection('asc');
         $this->enable('sort');
 
@@ -63,15 +64,21 @@ class ilMultiVcTableGUIRecordingsVVD extends ilTable2GUI
      */
     protected function fillRow(array $a_set): void
     {
-        $a_set['BEGIN'] = new ilDateTime($a_set['BEGIN'], IL_CAL_UNIX);
-        $a_set['END'] = new ilDateTime($a_set['END'], IL_CAL_UNIX);
+        $a_set['START_TIME'] = new ilDateTime($a_set['START_TIME'], IL_CAL_UNIX);
+        $a_set['END_TIME'] = new ilDateTime($a_set['END_TIME'], IL_CAL_UNIX);
 
         $this->tpl->setVariable('ROWSELECTOR', $a_set['rowSelector']);
-        $this->tpl->setVariable('BEGIN', ilDatePresentation::formatDate($a_set['BEGIN']));
-        $this->tpl->setVariable('END', ilDatePresentation::formatDate($a_set['END']));
+        $this->tpl->setVariable('STARTTIME', ilDatePresentation::formatDate($a_set['START_TIME']));
+        $this->tpl->setVariable('ENDTIME', ilDatePresentation::formatDate($a_set['END_TIME']));
         $this->tpl->setVariable('FILESIZE', $this->transformFileSize($a_set['FILE_SIZE']));
-        $this->tpl->setVariable('DOWNLOAD', 'herunterladen');
+        $this->tpl->setVariable('DOWNLOAD', $this->buildDownloadUrl($a_set['ROOM_ID'], $a_set['SESSION_ID']));
+        $this->tpl->setVariable('DOWNLOAD_TXT', $this->dic->language()->txt('rep_robj_xmvc_vvd_download'));
+    }
 
+    private function buildDownloadUrl($roomId, $sessionId) {
+        $url = ILIAS_HTTP_PATH . '/' . $this->dic->ctrl()->getLinkTargetByClass(array('ilObjMultiVcGUI'), 'showContent')
+        . '&amp;recordingVisavid=1&amp;roomId=' . $roomId . '&amp;sessionId=' . $sessionId;
+        return $url;
     }
 
     public function addRowSelector(array $a_data): array
