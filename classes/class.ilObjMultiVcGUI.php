@@ -279,6 +279,9 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 $this->checkPermission("read_learning_progress");
                 $this->$cmd();
                 break;
+            case "generateNewGuestlink":
+                var_dump("guestlink");exit;
+                break;
         }
     }
 
@@ -2312,7 +2315,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         $my_tpl->setVariable("INFO_REQUIREMENTS", $this->txt('info_requirements_' . $apiPostFix));
 
         // GUEST LINK
-        $vcAllowedGuestLink = $vcObj instanceof ilApiBBB || $vcObj instanceof ilApiWebex;
+        $vcAllowedGuestLink = $vcObj instanceof ilApiBBB || $vcObj instanceof ilApiWebex ||  $vcObj instanceof ilApiVisavid;
         if($vcAllowedGuestLink && $vcObj->isUserModerator() && $this->object->isGuestlink()) {
             $my_tpl->setVariable("UNHIDE_GUESTLINK", 'un');
             #echo '<pre>'; var_dump($vcObj->isUserModerator()); exit;
@@ -2348,6 +2351,20 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 }
             } else {
                 $my_tpl->setVariable("guestLinkPwHidden", ' hidden');
+            }
+            
+            if($this->isVisavid) {
+                //$newGuestlink = $vcObj->generateNewGuestlink();
+                $my_tpl->setVariable("generateNewGuestlinkInfo", $this->txt('vvd_generate_guestlink_info'));
+                $my_tpl->setVariable("generateNewGuestlink", $this->txt('vvd_generate_guestlink'));
+                
+                $ilCtrl = $this->dic->ctrl();
+                $ilCtrl->setParameter($this, 'cmd', 'generateNewGuestlink'); // Befehl setzen
+                $url = $ilCtrl->getLinkTarget($this, 'generateNewGuestlink');
+                $my_tpl->setVariable("xmvcUrl", $url);
+                
+            } else {
+                $my_tpl->setVariable("newGuestlinkHidden", ' hidden');
             }
         } else {
             #$my_tpl->setVariable("HIDE_GUESTLINK", 'hidden');

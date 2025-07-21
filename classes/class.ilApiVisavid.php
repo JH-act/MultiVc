@@ -43,7 +43,6 @@ class ilApiVisavid implements ilApiInterface
         $isModerated = $this->object->get_moderated();
         $isRecordingAllowed = $this->object->isRecordingAllowed();
         $isCamOnlyForModerator = $this->object->isCamOnlyForModerator();
-        // TODO
         $isGuestlink = $this->object->isGuestlink();
 
         $data = [
@@ -100,6 +99,16 @@ class ilApiVisavid implements ilApiInterface
         $room = $this->createRoom($this->getRoomId());
         // Join-URL aus Raum extrahieren
         return $room['dialIn'][$this->isUserModerator() ? 'moderatorLink' : 'participantLink'];
+    }
+
+    public function getInviteUserUrl() {
+        // TODO
+        return $this->getUrlJoinMeeting();
+    }
+
+    public function generateNewGuestlink() {
+        // TODO EInwahlcodes neu generieren und neuen TN-Code zurückgeben
+        return "";
     }
 
     private function getRecordingsForSession($sessId) {
