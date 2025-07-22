@@ -430,6 +430,8 @@ vvd_setting_meeting_layout#:#Room View
 vvd_setting_meeting_layout_speaker#:#Speaker
 vvd_setting_meeting_layout_conference#:#Conference
 vvd_setting_meeting_layout_favorite#:#Favorites
+vvd_setting_hide_username_logs#:#Hide username
+vvd_setting_hide_username_logs_info#:If selected, the user overview is not visible in the MultiVc object.
 vvd_setting_cb_moderated_choose#:#moderated room: selection option
 vvd_setting_cb_moderated_choose_info#:#Activate this option if you want users with write access to select 'moderated room' under Settings.
 vvd_setting_cb_moderated_default#:#moderated room: Default setting

@@ -48,6 +48,7 @@ $si->setOptions(
 $si->setRequired(true);
 $combo->addSubItem($si);
 
+$combo->addSubItem(addCheckbox($pl, 'hide_username_logs'));
 $combo->addSubItem(addCheckbox($pl, 'cb_moderated_choose'));
 $combo->addSubItem(addCheckbox($pl, 'cb_moderated_default'));
 $combo->addSubItem(addCheckbox($pl, 'private_chat_choose'));

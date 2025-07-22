@@ -20,6 +20,7 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
 
     private ilDateDurationInputGUI $filterItemDateDuration;
 
+    private ?string $platform = null;
 
     /**
      * ilMultiVcReportLogMaxTableGUI constructor.
@@ -37,6 +38,7 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
         // meetings shown in infoScreen
         if($this->parent_obj instanceof ilObjMultiVcGUI) {
             $this->refId = (int) $this->parent_obj->object->getRefId();
+            $this->platform = $this->parent_obj->platform;
             #var_dump($this->); exit;
         }
 
@@ -67,12 +69,30 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
         $this->addCommandButton('downloadUserLog', $this->dic->language()->txt('export'));            #var_dump($this->); exit;
         // }
 
-        $this->getDataFromDb();
+        if($this->platform === 'visavid') {            
+            // loadData from API
+            var_dump("get TN-Liste");exit;
+
+            // 'REF' => implode(' / ', $tree),
+            // 'USER' => ilObjUser::_lookupFullname($a_set['user_id']),
+            // 'DISPLAY_NAME' => $a_set['display_name'],
+            // 'IS_MODERATOR' => !(bool) $a_set['is_moderator'] ? !(bool) $a_set['user_id'] ? $this->dic->language()->txt('rep_robj_xmvc_guest') : '' : $this->dic->language()->txt('rep_robj_xmvc_moderator'),
+            // 'JOIN_TIME' => $joinTime,
+            // 'START_TIME' => $meetingStart,
+            // 'MEETING_ID' => $a_set['meeting_id'],
+            // 'LEAVE_TIME' => $leaveTime
+        } else {
+            $this->getDataFromDb();
+        }
     }
 
     public function downloadCsv(): void
     {
-        $this->exportData(2, true);
+        if($this->platform === 'visavid') {
+            var_dump("download TN-Liste");exit;
+        } else {
+            $this->exportData(2, true);
+        }
     }
 
     /**

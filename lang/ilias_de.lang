@@ -433,6 +433,8 @@ vvd_setting_meeting_layout#:#Raum-Darstellung
 vvd_setting_meeting_layout_speaker#:#Sprecher
 vvd_setting_meeting_layout_conference#:#Konferenz
 vvd_setting_meeting_layout_favorite#:#Favoriten
+vvd_setting_hide_username_logs#:#Benutzerübersicht verstecken
+vvd_setting_hide_username_logs_info#:#Wenn ausgewählt, wird beim MultiVc-Objekt keine Benutzerübersicht angezeigt.
 vvd_setting_cb_moderated_choose#:#moderierter Raum: Auswahlmöglichkeit
 vvd_setting_cb_moderated_choose_info#:#Aktivieren Sie diese Option wenn Benutzer mit Schreibrechten unter Einstellungen die Auswahl 'moderierter Raum' haben sollen.
 vvd_setting_cb_moderated_default#:#moderierter Raum: Voreinstellung
