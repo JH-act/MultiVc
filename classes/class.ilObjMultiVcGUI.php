@@ -2310,7 +2310,7 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
         $my_tpl->setVariable("JOINCONTENT", $this->getJoinContent($vcObj));
         $my_tpl->setVariable("MEETING_RUNNING", $this->txt('meeting_running'));
         $my_tpl->setVariable("HEADLINE_INFO_BOTTOM", $this->txt('info_bottom_headline'));
-        $my_tpl->setVariable("INFOBOTTOM", $this->txt('info_bottom'));
+        $my_tpl->setVariable("INFOBOTTOM", $this->txt($this->isVisavid ? 'vvd_info_bottom' : 'info_bottom'));
         $my_tpl->setVariable("HEADLINE_INFO_REQUIREMENTS", $this->txt('info_requirements_headline'));
         $my_tpl->setVariable("INFO_REQUIREMENTS", $this->txt('info_requirements_' . $apiPostFix));
 

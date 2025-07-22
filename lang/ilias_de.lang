@@ -428,6 +428,7 @@ vvd_token#:#API-Token
 vvd_token_info#:#API-Token zur Authentifizierung mit dem Visavid-System
 vvd_download#:#herunterladen
 vvd_filesize#:#Dateigröße
+vvd_info_bottom#:#<ul><li>Bitte <b>nutzen Sie ein Headset</b> zur Vermeidung von störenden Rückkopplungen oder Echos!</li><li><b>Bei schlechter Internetverbindung</b> sollten Sie Ihre Kamera (Webcam) abschalten und bei noch schlechterer Verbindung sollten Sie für die Übertragung des Tons eine Telefonkonferenz nutzen.</li><li>Bei der Nutzung von Visavid erklären Sie sich mit den <a href="https://visavid.de/nutzungsbedingungen/">Nutzungsbedingungen</a> einverstanden.</li></ul>
 vvd_setting_meeting_layout#:#Raum-Darstellung
 vvd_setting_meeting_layout_speaker#:#Sprecher
 vvd_setting_meeting_layout_conference#:#Konferenz

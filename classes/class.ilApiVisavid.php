@@ -16,7 +16,7 @@ class ilApiVisavid implements ilApiInterface
     /** @var bool|ilObject $parentObj */
     private $parentObj;
     private string $userRole;
-    private ?string $roomId = null;
+    private ?array $room = null;
 
     public function __construct(\ilObjMultiVcGUI $a_parent)
     {
@@ -33,7 +33,64 @@ class ilApiVisavid implements ilApiInterface
         return $this->group;
     }
 
-    public function createRoom($id = null) {
+// Visavid Room API v1.1.0 
+// {
+//   "id": "<string>",
+//   "name": "<string>",
+//   "description": "<string>",
+//   "requireCode": "<boolean>",
+//   "onlyAllowIndividualCodes": "<boolean>",
+//   "downloadFiles": "<boolean>",
+//   "uploadFiles": "<boolean>",
+//   "private": "<boolean>",
+//   "lockAfterMinutes": "<integer>",
+//   "webcam": "<boolean>",
+//   "microphone": "<boolean>",
+//   "screensharing": "<boolean>",
+//   "whiteboard": "<boolean>",
+//   "raiseHand": "<boolean>",
+//   "emojis": "<boolean>",
+//   "recording": "<boolean>",
+//   "enterWithoutModerator": "<boolean>",
+//   "downloadChat": "<boolean>",
+//   "chat": "<boolean>",
+//   "chat1to1": "<boolean>",
+//   "anonymous": "<boolean>",
+//   "earlyEnterWindow": "<integer>",
+//   "waitingroom": "<boolean>",
+//   "lockInactiveRoom": "<boolean>",
+//   "attendance": {
+//     "attendanceLogging": "<boolean>",
+//     "activeAFKCheck": "<boolean>",
+//     "afkMinMinute": "<integer>",
+//     "afkMaxMinute": "<integer>"
+//   },
+//   "invitation": {
+//     "subject": "<string>",
+//     "body": "<string>",
+//     "fromName": "<string>",
+//     "replyTo": "<string>"
+//   },
+//   "view": "CONFERENCE",
+//   "bigEvent": "<boolean>",
+//   "breakoutroomConfig": {
+//     "enabled": "<boolean>",
+//     "timeLimit": "<integer>",
+//     "maxByGroup": "<integer>",
+//     "unlockDocs": "<boolean>",
+//     "freeHopping": "<boolean>",
+//     "chat": "<boolean>",
+//     "webcamTeilnehmer": "<boolean>",
+//     "mikrofonTeilnehmer": "<boolean>",
+//     "screensharingTeilnehmer": "<boolean>",
+//     "whiteboardTeilnehmer": "<boolean>",
+//     "distribution": "moderator"
+//   },
+//   "begin": "<dateTime>",
+//   "end": "<dateTime>"
+// }
+
+    public function loadRoom($id = null) {
         $domain = $this->settings->getSvrPublicUrl();
         $token = $this->settings->getSvrSalt();
 
@@ -45,17 +102,24 @@ class ilApiVisavid implements ilApiInterface
         $isCamOnlyForModerator = $this->object->isCamOnlyForModerator();
         $isGuestlink = $this->object->isGuestlink();
 
+
+        // TODO wenn wir room templates nutzen, können Einstellungen leichter überschrieben statt hier hardcoded zu werden
         $data = [
             'name' => $title,
             'description' => $desc,
             'webcam' => !$isCamOnlyForModerator,
             'chat1to1' => $isPrivateChat,
             'enterWithoutModerator' => !$isModerated,
-            'recording' => $isRecordingAllowed
+            'recording' => $isRecordingAllowed,
+            'requireCode' => true,
+            'attendance' => [
+                'attendanceLogging' => true
+            ]
         ];
 
+
         $jsonData = json_encode($data);
-        $url = $this->buildUrl($id === null ? 'create_room' : 'update_room');
+        $url = $this->buildUrl($id === null ? 'create_room' : 'update_room', $id);
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $id === null ? 'POST' : 'PATCH');
@@ -71,39 +135,40 @@ class ilApiVisavid implements ilApiInterface
         curl_close($ch);
 
         if (curl_errno($ch)) {
-            throw new \Exception('cURL error accessing Visavid API (id: ' . $id .'): ' . curl_error($ch));
+            throw new \Exception('cURL error accessing Visavid API (url: ' . $url .'): ' . curl_error($ch));
         }
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if($id !== null && $httpCode === 404) {
             // Raum am Visavid-System nicht mehr verfügbar - neu erstellen
-            // TODO delete Eintrag in DB, Recordings etc
-            return $this->createRoom();    
+            // TODO delete Eintrag in DB
+            return $this->loadRoom();    
         }
         else if ($httpCode !== 200) {
-            throw new \Exception('Unexpected HTTP Status code accessing Visavid API (id: ' . $id .'): ' . $httpCode);
+            throw new \Exception('Unexpected HTTP Status code accessing Visavid API (url: ' . $url .'): ' . $httpCode);
         }
 
         $room = json_decode($response, true);
         if($id === null) {
             // Neuer Raum wurde erstellt: Id merken
-            // TODO nur noch id persistieren
+            // TODO nur noch id und ggf. template id persistieren
             $this->persistVisavidRoom($room['id'], $room['dialIn']['moderatorLink'], $room['dialIn']['participantLink']);
         }
-
-        return $room;
+        
+        $this->room = $room;
+        return $this->room;
     }
 
     public function getUrlJoinMeeting() {
-        // Raum erstellen oder aktualisieren
-        $room = $this->createRoom($this->getRoomId());
-        // Join-URL aus Raum extrahieren
-        return $room['dialIn'][$this->isUserModerator() ? 'moderatorLink' : 'participantLink'];
+        $name = urlencode($this->dic->user()->firstname . ' ' . $this->dic->user()->lastname);
+        $baseUrl = $this->getRoom()['dialIn'][$this->isUserModerator() ? 'moderatorLink' : 'participantLink'];
+        $queryParams =  'autoJoin=true&termsConfirmed=true&name=' . $name;
+
+        return $baseUrl . (str_contains($baseUrl, '?') ? '&' : '?') . $queryParams;
     }
 
     public function getInviteUserUrl() {
-        // TODO
-        return $this->getUrlJoinMeeting();
+        return $this->getRoom()['dialIn']['participantLink'];
     }
 
     public function generateNewGuestlink() {
@@ -112,7 +177,8 @@ class ilApiVisavid implements ilApiInterface
     }
 
     private function getRecordingsForSession($sessId) {
-        $res = $this->curlGet('recordings', $sessId);
+        $roomId = $this->getRoom()['id'];
+        $res = $this->curlGet('recordings', $roomId, $sessId);
         $recList = [];
         if($res !== null) {
             // map recordings to MultiVC Recording list
@@ -122,7 +188,7 @@ class ilApiVisavid implements ilApiInterface
                     'END_TIME' => (new DateTimeImmutable($rec['stop']))->getTimestamp(),
                     'SESSION_ID' => $rec['id'],
                     'FILE_SIZE' => $rec['size'],
-                    'ROOM_ID' => $this->getRoomId()
+                    'ROOM_ID' => $this->getRoom()['id']
                 ];
             }
         }
@@ -130,9 +196,10 @@ class ilApiVisavid implements ilApiInterface
     }
 
     public function downloadRecording($recId) {
-        $file = $this->curlGet('download_recording', $recId);
+        $roomId = $this->getRoom()['id'];
+        $file = $this->curlGet('download_recording', $roomId, $recId);
         if ($file === null || strlen($file) === 0) {
-            throw new \Exception('Error when downloading visavid recording (roomId: ' . $this->getRoomId() . ', id: ' . $recId .'): ');
+            throw new \Exception('Error when downloading visavid recording (roomId: ' . $this->getRoom()['id'] . ', id: ' . $recId .'): ');
         }
 
         header('Content-Type: application/octet-stream');
@@ -144,7 +211,8 @@ class ilApiVisavid implements ilApiInterface
 
     public function deleteRecord($recId) {
         $token = $this->settings->getSvrSalt();
-        $url = $this->buildUrl('delete_recording', $recId);
+        $roomId = $this->getRoom()['id'];
+        $url = $this->buildUrl('delete_recording', $roomId, $recId);
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
@@ -171,7 +239,8 @@ class ilApiVisavid implements ilApiInterface
      */
     public function getRecordings() {
         // load room sessions with recordings
-        $sess = $this->curlGet('sessions');
+        $roomId = $this->getRoom()['id'];
+        $sess = $this->curlGet('sessions', $roomId);
         
         $recList = [];
         
@@ -245,16 +314,17 @@ class ilApiVisavid implements ilApiInterface
         return true;
     }
 
-    private function getRoomId() {
-        if($this->roomId === null) {
+    private function getRoom() {
+        if($this->room === null) {
             $ilDB = $this->dic->database();
-            
+            $roomId = null;
             $result = $ilDB->query('SELECT v.id FROM ilias.rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = ' . $ilDB->quote($this->object->getId(), 'integer')); 
             while ($row = $ilDB->fetchAssoc($result)) {
-                $this->roomId = $row['id'];
+                $roomId = $row['id'];
             }
+            return $this->loadRoom($roomId);
         }
-        return $this->roomId;
+        return $this->room;
     }
 
     /**
@@ -276,10 +346,11 @@ class ilApiVisavid implements ilApiInterface
         $ilDB->insert('rep_robj_xmvc_vvd', $a_data);
     }
 
-    private function buildUrl(string $type, ?string $id = null) {
+    private function buildUrl(string $type, ?string $roomId = null, ?string $id = null) {
         $domain = $this->settings->getSvrPublicUrl();
-        $apiRoot = $domain . '/api/verwaltung/v1.1.0/rooms/';
-        $base = $apiRoot . $this->getRoomId();
+        $apiRoot = $domain . '/api/verwaltung/v1.1.0/rooms';
+        $base = $apiRoot . ($roomId !== null ? '/' . $roomId : '');
+
         switch ($type) {
             case 'create_room':
                 return $apiRoot;
@@ -298,9 +369,9 @@ class ilApiVisavid implements ilApiInterface
         }
     }
 
-    private function curlGet(string $type, ?string $id = null) {
+    private function curlGet(string $type, ?string $roomId = null, ?string $id = null) {
         $token = $this->settings->getSvrSalt();
-        $url = $this->buildUrl($type, $id);
+        $url = $this->buildUrl($type, $roomId, $id);
         if(!$url) {
             throw new \Exception('Error when building URL for Visavid API request');
         }
@@ -317,7 +388,7 @@ class ilApiVisavid implements ilApiInterface
         curl_close($ch);
 
         if (curl_errno($ch)) {
-            throw new \Exception('cURL error for GET Visavid API (type: ' . $type . ', roomId: ' . $this->getRoomId() . ', id: ' . $id .'): ' . curl_error($ch));
+            throw new \Exception('cURL error for GET Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url .'): ' . curl_error($ch));
         }
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -325,7 +396,7 @@ class ilApiVisavid implements ilApiInterface
             return null;
         }
         else if ($httpCode !== 200) {
-            throw new \Exception('Unexpected HTTP Status code for GET Visavid API (type: ' . $type . ', roomId: ' . $this->getRoomId() . ', id: ' . $id .'): ' . $httpCode);
+            throw new \Exception('Unexpected HTTP Status code for GET Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url .'): ' . $httpCode);
         }
 
         return $type === 'download_recording' ? $response : json_decode($response, true);

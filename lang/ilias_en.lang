@@ -425,6 +425,7 @@ vvd_domain_info#:#URL of the Visavid system where the room is to be created
 vvd_token#:#API token
 vvd_token_info#:#API token for authentication with the Visavid system
 vvd_filesize#:#Filesize
+vvd_info_bottom#:<ul><li>Please <b>use a headset</b> to avoid annoying feedback or echoes!</li><li><b>If your Internet connection is poor</b>, you should switch off your camera (webcam) and if the connection is even worse, you should use a telephone conference for the transmission of the sound.</li><li>By using Visavid you agree to the <a href="https://visavid.de/nutzungsbedingungen/" terms of use (German)</a>.</li></ul>
 vvd_setting_meeting_layout#:#Room View
 vvd_setting_meeting_layout_speaker#:#Speaker
 vvd_setting_meeting_layout_conference#:#Conference
