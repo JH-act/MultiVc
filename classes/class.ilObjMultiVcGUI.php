@@ -1318,6 +1318,8 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
             $this->object->setTitle($this->form->getInput("title"));
             $this->object->setDescription($this->form->getInput("desc"));
             $this->object->setOnline($this->form->getInput("online"));
+            $hasGuestlinkChanged = $this->object->isGuestlink() !== (bool) $this->form->getInput("cb_guestlink");
+
             if($this->hasChoosePermission('moderated')) {
                 $this->object->set_moderated($this->object->ilIntToBool((int) $this->form->getInput("cb_moderated")));
             }
@@ -1387,6 +1389,9 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
             } elseif($vc === 'om') {
                 $om = new ilApiOM($this);
                 $this->prepareRoomOM($om);
+            } elseif($vc === 'visavid' && $hasGuestlinkChanged) {
+                $vvd = new ilApiVisavid($this);
+                $vvd->generateNewGuestlink();
             }
 
             $this->dic->ui()->mainTemplate()->setOnScreenMessage('success', $this->dic->language()->txt("msg_obj_modified"), true);

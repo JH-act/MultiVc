@@ -171,9 +171,17 @@ class ilApiVisavid implements ilApiInterface
         return $this->getRoom()['dialIn']['participantLink'];
     }
 
+    /**
+     * Generate new login codes for the room
+     * Attention: The room will be locked during this process, which will stop the conference if active
+     */
     public function generateNewGuestlink() {
-        // TODO EInwahlcodes neu generieren und neuen TN-Code zurückgeben
-        return "";
+        $this->curlPOST('lock_room');
+        $this->curlPOST('new_codes');
+        $this->curlPOST('unlock_room');
+
+        // reset room: needs to be reloaded for new codes
+        $this->room = null;
     }
 
     private function getRecordingsForSession($sessId) {
@@ -364,6 +372,12 @@ class ilApiVisavid implements ilApiInterface
             case 'download_recording':
             case 'delete_recording': 
                 return $base . '/recordings/' . $id; 
+            case 'new_codes':
+                return $base . '/actions/newcodes';
+            case 'lock_room':
+                return $base . '/actions/lock';
+            case 'unlock_room':
+                return $base . '/actions/unlock';
             default:
                 return null;
         }
@@ -402,11 +416,37 @@ class ilApiVisavid implements ilApiInterface
         return $type === 'download_recording' ? $response : json_decode($response, true);
     }
 
+    private function curlPOST(string $type) {
+        $token = $this->settings->getSvrSalt();
+        $roomId = $this->getRoom()['id'];
+        $url = $this->buildUrl($type, $roomId);
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json',
+            'Authorization: Bearer ' . $token
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        if (curl_errno($ch)) {
+            throw new \Exception('cURL error accessing Visavid API (url: ' . $url .'): ' . curl_error($ch));
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode !== 200) {
+            throw new \Exception('Unexpected HTTP Status code accessing Visavid API (url: ' . $url .'): ' . $httpCode);
+        }
+    }
 
 ////////////////////////////////////////
 ///    COPIED FROM ilApiBBB
 ////////////////////////////////////////
-/**
+
+    /**
      * @throws ilDatabaseException
      * @throws ilObjectNotFoundException
      */
