@@ -16,23 +16,3 @@ $('#copyGuestLinkPw', document).on('click', function (e) {
   copyText.setSelectionRange(0, 99999); /*For mobile devices*/
   document.execCommand("copy");
 });
-
-$('#generateNewGuestlink', document).on('click', function (e) {
-    e.preventDefault();
-    const xmvcUrl = document.getElementById('generateNewGuestlink').dataset.xmvcUrl;
-    $.ajax({
-        url: xmvcUrl,
-        type: 'POST',
-        data: {
-            id: 123
-        },
-        success: function(response) {
-            console.log("Erfolg: ", response);
-            // Seite neu laden, um Änderungen sichtbar zu machen
-            location.reload();
-        },
-        error: function(xhr, status, error) {
-            console.error("Fehler: ", error);
-        }
-    });
-});

@@ -2352,20 +2352,6 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
             } else {
                 $my_tpl->setVariable("guestLinkPwHidden", ' hidden');
             }
-            
-            if($this->isVisavid) {
-                //$newGuestlink = $vcObj->generateNewGuestlink();
-                $my_tpl->setVariable("generateNewGuestlinkInfo", $this->txt('vvd_generate_guestlink_info'));
-                $my_tpl->setVariable("generateNewGuestlink", $this->txt('vvd_generate_guestlink'));
-                
-                $ilCtrl = $this->dic->ctrl();
-                $ilCtrl->setParameter($this, 'cmd', 'generateNewGuestlink'); // Befehl setzen
-                $url = $ilCtrl->getLinkTarget($this, 'generateNewGuestlink');
-                $my_tpl->setVariable("xmvcUrl", $url);
-                
-            } else {
-                $my_tpl->setVariable("newGuestlinkHidden", ' hidden');
-            }
         } else {
             #$my_tpl->setVariable("HIDE_GUESTLINK", 'hidden');
         }
