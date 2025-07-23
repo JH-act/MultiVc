@@ -1205,7 +1205,10 @@ class ilMultiVcConfig
         $result = $ilDB->query($query);
         $data = [];
         while ($row = $ilDB->fetchAssoc($result)) {
-            $row['connTitle'] = $data0[$row['xmvcConnId']]['title'];
+            $row['connTitle'] = "meeting type deleted";
+            if (isset($data0[$row['xmvcConnId']]['title'])) {
+                $row['connTitle'] = $data0[$row['xmvcConnId']]['title'];
+            }
             $data[$row['xmvcRefId']] = $row;
         }
 
