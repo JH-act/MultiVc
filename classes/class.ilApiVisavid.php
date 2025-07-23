@@ -184,6 +184,80 @@ class ilApiVisavid implements ilApiInterface
         $this->room = null;
     }
 
+    /**
+     * Exports Visavid attendance data as json
+     */
+    public function exportAttendanceData() {
+        $roomId = $this->getRoom()['id'];
+        $attendance = $this->curlGet('attendance_export', $roomId);
+        $attendance_json = json_encode($attendance, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $filename = "visavid_anwesenheiten.json";
+
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Length: ' . strlen($attendance_json));
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        echo $attendance_json;
+    }
+
+    /**
+     * Load attendance data for all sessions of the room
+     */
+    public function getAttendanceData() {
+        $roomId = $this->getRoom()['id'];
+        $attendance = $this->curlGet('attendance', $roomId);
+        $timezone = new DateTimeZone('Europe/Berlin');
+
+        $data = [];
+        foreach ($attendance as $session) {
+            foreach ($session['participants'] as $participant) {
+                $name = $participant['name'] ?? 'Unbekannt';
+                foreach ($participant['attendancePeriods'] as $period) {
+                    $join = new DateTime($period['start']);
+                    $join->setTimezone($timezone);
+                    $joinFormatted = $join->format('d.m.Y H:i \U\h\r');
+                    $leave = new DateTime($period['end']);
+                    $leave->setTimezone($timezone);
+                    $leaveFormatted = $join->format('d.m.Y H:i \U\h\r');
+
+                    $data[] = [
+                        'DISPLAY_NAME' => $name,
+                        'JOIN_TIME' => $joinFormatted,
+                        'LEAVE_TIME' => $leaveFormatted,
+                        'IS_MODERATOR' => 'Teilnehmer',
+                        'USER' => '',
+                        'REF' => '',
+                        'START_TIME' => '',
+                        'MEETING_ID' => '',
+                    ];
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Load recordings for all recorded sessions of the room
+     */
+    public function getRecordings() {
+        // load room sessions with recordings
+        $roomId = $this->getRoom()['id'];
+        $sess = $this->curlGet('sessions', $roomId);
+        
+        $recList = [];
+        
+        if($sess !== null) {
+            // load corresponding recordings
+            foreach($sess as $s) {
+                $recList = array_merge($recList, $this->getRecordingsForSession($s['id']));
+            }
+        }
+        return $recList;
+    }
+
     private function getRecordingsForSession($sessId) {
         $roomId = $this->getRoom()['id'];
         $res = $this->curlGet('recordings', $roomId, $sessId);
@@ -240,25 +314,6 @@ class ilApiVisavid implements ilApiInterface
         if ($httpCode !== 200) {
             throw new \Exception('Unexpected HTTP Status code deleting Visavid Recording (id: ' . $recId .'): ' . $httpCode);
         }
-    }
-
-    /**
-     * Load recordings for all recorded sessions of the room
-     */
-    public function getRecordings() {
-        // load room sessions with recordings
-        $roomId = $this->getRoom()['id'];
-        $sess = $this->curlGet('sessions', $roomId);
-        
-        $recList = [];
-        
-        if($sess !== null) {
-            // load corresponding recordings
-            foreach($sess as $s) {
-                $recList = array_merge($recList, $this->getRecordingsForSession($s['id']));
-            }
-        }
-        return $recList;
     }
 
     public function hasSessionObject(): bool
@@ -369,6 +424,9 @@ class ilApiVisavid implements ilApiInterface
                 return $base . '/sessions/with-recordings';
             case 'recordings': 
                 return $base . '/sessions/' . $id . '/recordings';
+            case 'attendance':
+            case 'attendance_export':
+                return $base . '/attendance';
             case 'download_recording':
             case 'delete_recording': 
                 return $base . '/recordings/' . $id; 

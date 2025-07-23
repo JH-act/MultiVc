@@ -61,7 +61,9 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
         $this->setDefaultOrderDirection('asc');
         //$this->disable('sort');
         $this->setRowTemplate('tpl.user_log_row.html', 'Customizing/global/plugins/Services/Repository/RepositoryObject/MultiVc');
-        $this->initFilterDateDuration();
+        if(!$this->platform === 'visavid') {
+            $this->initFilterDateDuration();
+        }
         $this->setFilterCommand('applyFilterUserLog');
         $this->setResetCommand('resetFilterUserLog');
         // shown in Administration, add export button
@@ -70,17 +72,9 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
         // }
 
         if($this->platform === 'visavid') {            
-            // loadData from API
-            var_dump("get TN-Liste");exit;
-
-            // 'REF' => implode(' / ', $tree),
-            // 'USER' => ilObjUser::_lookupFullname($a_set['user_id']),
-            // 'DISPLAY_NAME' => $a_set['display_name'],
-            // 'IS_MODERATOR' => !(bool) $a_set['is_moderator'] ? !(bool) $a_set['user_id'] ? $this->dic->language()->txt('rep_robj_xmvc_guest') : '' : $this->dic->language()->txt('rep_robj_xmvc_moderator'),
-            // 'JOIN_TIME' => $joinTime,
-            // 'START_TIME' => $meetingStart,
-            // 'MEETING_ID' => $a_set['meeting_id'],
-            // 'LEAVE_TIME' => $leaveTime
+            // load data from API
+            $vvd = new ilApiVisavid($this->parent_obj);
+            $this->setData($vvd->getAttendanceData());
         } else {
             $this->getDataFromDb();
         }
@@ -89,7 +83,8 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
     public function downloadCsv(): void
     {
         if($this->platform === 'visavid') {
-            var_dump("download TN-Liste");exit;
+            $vvd = new ilApiVisavid($this->parent_obj);
+            $vvd->exportAttendanceData();
         } else {
             $this->exportData(2, true);
         }
@@ -108,7 +103,9 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
         $wS = '10%';
         $wM = '15%';
         $wL = '30%';
-        $this->addColumn($this->dic->language()->txt('repository'), 'REF');
+        if(!$this->platform === 'visavid') {
+            $this->addColumn($this->dic->language()->txt('repository'), 'REF');
+        }
         if($this->getParentCmd() === 'downloadUserLog') {
             $this->addColumn('ILIAS-' . $this->dic->language()->txt('user'), 'USER');
         }
@@ -211,7 +208,11 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
         $dtMeetingStart = new ilDateTime($a_set['start_time'], IL_CAL_UNIX);
         $meetingStart = $dtMeetingStart->get(IL_CAL_FKT_DATE, 'Y-m-d H:i:s', $this->dic->user()->getTimeZone());
         */
-        $this->tpl->setVariable('REF', $a_set['REF']);
+        if(!$this->platform === 'visavid') {
+            $this->tpl->setVariable('REF', $a_set['REF']);
+        } else {
+            $this->tpl->setVariable('HIDE_REF', ' style="display:none;"');
+        }
         $this->tpl->setVariable('USER', $a_set['USER']);
         $this->tpl->setVariable('DISPLAY_NAME', $a_set['DISPLAY_NAME']);
         $this->tpl->setVariable('IS_MODERATOR', $a_set['IS_MODERATOR']);
