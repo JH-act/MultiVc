@@ -381,7 +381,7 @@ class ilApiVisavid implements ilApiInterface
         if($this->room === null) {
             $ilDB = $this->dic->database();
             $roomId = null;
-            $result = $ilDB->query('SELECT v.id FROM ilias.rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = ' . $ilDB->quote($this->object->getId(), 'integer')); 
+            $result = $ilDB->query('SELECT v.id FROM rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = ' . $ilDB->quote($this->object->getId(), 'integer')); 
             while ($row = $ilDB->fetchAssoc($result)) {
                 $roomId = $row['id'];
             }
