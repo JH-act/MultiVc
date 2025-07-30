@@ -300,7 +300,49 @@ Grundsätzlich werden die Standard-Teams-Benachrichtigungen unter Berücksichtig
 
 ## Visavid
 
-TODO
+Für die Anbindung an [Visavid](https://visavid.de) ist ein API-Zugang erforderlich.
+
+In der Plugin-Administration werden die Visavid-Domain sowie das API-Token des Zugangs angegeben.
+Nun können Visavid-Räume direkt in ILIAS verwaltet und betreten werden.
+
+Besondere Infos zu einzelnen Funktionalitäten:
+
+### Raum-Darstellung
+
+In Visavid können folgende drei verschiedene Darstellungen gewählt werden. Ein Moderator kann die Darstellung für den Raum bei Bedarf f+r alle Teilnehmer erzwingen.
+
+Sprecher-Darstellung
+- Hier werden die aktuell sprechenden Personen am Bildschirmrand hervorgehoben
+- Der größte Bereich der Konferenz wird durch das geteilte Medium eingenommen (Bildschirmfreigabe oder Whiteboard, ansonsten Webcam eines Sprechers) 
+- Wenn mehrere Bildschirmfreigaben oder Whiteboards geteilt werden, kann durch diese geblättert werden
+
+KOnferenz-Darstellung
+- Hier werden alle Teilnehmer und Medien in einer Gitteransicht angezeigt (bis zu 35 Kacheln pro Seite)
+- Einzelne Medien wie Bildschirmfreigaben können in einem separaten Fenster geöffnet werden
+
+Favoriten-Darstellung
+- Moderatoren können einzelne Teilnehmer zu Favoriten ernennen
+- In dieser Darstellung sind nur die Medien der Favoriten sichtbar
+- Der größte Bereich der Konferenz wird durch das geteilte Medium eingenommen (Bildschirmfreigabe oder Whiteboard, ansonsten Webcam des obersten Favoriten) 
+- Wenn mehrere Bildschirmfreigaben oder Whiteboards geteilt werden, kann durch diese geblättert werden
+
+### Benutzerübersicht
+
+- In der Benutzerübersicht stehen die Namen und Zeiträume von Nutzern, welche im Raum die Rolle "Teilnehmer" hatten
+- Da in einem nicht moderierten Raum jeder Nutzer die Rolle "Moderator" innehält, werden dort keine Anwesenheiten protokolliert
+- Die Benutzerübersicht kann als json-Datei exportiert werden
+
+### Aufzeichnung
+
+- Die Aufzeichnung ist die einzige Einstellung, welche zur Laufzeit der Konferenz nicht verändert werden kann
+- Ist die Aufziechnungsfunktion aktiv, so können Moderatoren diese in der Konferenz starten
+- Die Konferenz wird in der Sprecher-Darstellung aufgezeichnet
+- Die Aufzeichnung kann nach Schließen des Raums und einer kurzen Verarbeitungszeit (je nach Länge der Aufzeichnung) in der Meeting-Übersicht heruntergeladen werden
+
+### Gastlink
+
+- Ist der Gastlink aktiv, kann dieser aus der Meeting-Übersicht kopiert und extern weitergegeben werden
+- Bei der (De)Akivierung des Gastlinks werden die Einwahlcodes zu dem Raum neu generiert, was den bisherigen Gastlink ungültig macht
 
 
 # Verwendung
