@@ -113,7 +113,6 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 break;
             case 'visavid':
                 $this->isVisavid = true;
-                $checkAuthUser =
                 $initVc = $isXmvcObj;
                 break;
             default:
