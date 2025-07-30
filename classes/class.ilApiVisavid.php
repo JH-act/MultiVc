@@ -162,10 +162,18 @@ class ilApiVisavid implements ilApiInterface
         return $this->room;
     }
 
+    /**
+     * Get URL to join visavid room
+     * Unlock room if moderator
+     */
     public function getUrlJoinMeeting() {
         $name = urlencode($this->dic->user()->firstname . ' ' . $this->dic->user()->lastname);
         $baseUrl = $this->getRoom()['dialIn'][$this->isUserModerator() ? 'moderatorLink' : 'participantLink'];
         $queryParams =  'autoJoin=true&termsConfirmed=true&name=' . $name;
+
+        if($this->isUserModerator()) {
+            $this->curlPOST('unlock_room');
+        }
 
         return $baseUrl . (str_contains($baseUrl, '?') ? '&' : '?') . $queryParams;
     }
@@ -193,10 +201,6 @@ class ilApiVisavid implements ilApiInterface
     public function exportAttendanceData() {
         $roomId = $this->getRoom()['id'];
         $attendance = $this->curlGet('attendance_export', $roomId);
-        if(empty($attendance)) {
-            throw new \Exception('Error during visavid attendance export (roomId: ' . $roomId . ')');
-        }
-
         $attendance_json = json_encode($attendance, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $filename = "visavid_anwesenheiten.json";
 
@@ -276,16 +280,19 @@ class ilApiVisavid implements ilApiInterface
             return [];
         }
 
-        // map recordings to MultiVC Recording list
         $recList = [];
         foreach($res as $rec) {
-            $recList[$rec['id']] = [
-                'START_TIME' => (new DateTimeImmutable($rec['start']))->getTimestamp(),
-                'END_TIME' => (new DateTimeImmutable($rec['stop']))->getTimestamp(),
-                'SESSION_ID' => $rec['id'],
-                'FILE_SIZE' => $rec['size'],
-                'ROOM_ID' => $this->getRoom()['id']
-            ];
+            // ignore pending or unknown recordings
+            if (isset($rec['status']) && $rec['status'] === 'READY') {
+                // map recordings to MultiVC Recording list
+                $recList[$rec['id']] = [
+                    'START_TIME' => (new DateTimeImmutable($rec['start']))->getTimestamp(),
+                    'END_TIME' => (new DateTimeImmutable($rec['stop']))->getTimestamp(),
+                    'SESSION_ID' => $rec['id'],
+                    'FILE_SIZE' => $rec['size'],
+                    'ROOM_ID' => $this->getRoom()['id']
+                ];
+            }
         }
         return $recList;
     }
