@@ -1433,3 +1433,29 @@ if (!$ilDB->tableColumnExists('rep_robj_xmvc_conn', 'mail_lang')) {
     ));
 }
 ?>
+<#45>
+<?php
+/**
+ * Add information to Visavid room
+ */
+$fields_data = array(
+    // UUID of visavid room
+    'id' => array( 
+        'type' => 'text', 
+        'length' => 36,
+        'notnull' => true
+    ),
+    // FK for rep_robj_xmvc_data id
+    'ref_id' => array(
+        'type' => 'integer', 
+        'length' => 8,
+        'notnull' => true
+    ),
+);
+if(!$ilDB->tableExists("rep_robj_xmvc_vvd")) {
+    $ilDB->createTable("rep_robj_xmvc_vvd", $fields_data);
+}
+if(!$ilDB->primaryExistsByFields("rep_robj_xmvc_vvd", array("id"))) {
+    $ilDB->addPrimaryKey("rep_robj_xmvc_vvd", array("id"));
+}
+?>

@@ -40,3 +40,5 @@
 8.17
 - lobbyBypassScope for MS Teams configurable
 - Support for eMail-alias of Microsoft Entra
+8.x
+- added Support for Visavid (see README.md)

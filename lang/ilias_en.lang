@@ -165,6 +165,7 @@ info_requirements_om#:#<ul><li>Openmeetings uses the open standard WebRTC, which
 info_requirements_partly#:#We recommend Google Chrome as browser or with restrictions Mozilla Firefox. If and to what extent the browser you are currently using is suitable to use the virtual meeting room, you have to find out yourself. Please report your experiences to the technical support team, if available.
 info_requirements_teams#:#<ul><li>Moderierende müssen die Teams App benutzen.</li><li>Teilnehmende können Teams über ihren Browser starten.</li><li>Um Ihren Bildschirm übertragen zu können (Desktopsharing), sollten Sie über eine performante Internetverbindung verfügen. Wir empfehlen Moderatoren und Präsentatoren darüberhinaus, ein kabelgebundenes Netzwerk (kein WLAN) zu nutzen.
 info_requirements_webex#:#<ul><li>Recommended browsers: Chrome, Edge, Firefox</li></ul>
+info_requirements_visavid#:#<ul><li>Visavid uses the open standard WebRTC. Visavid requires a current browser, for example Google Chrome, Microsoft Edge, Mozilla Firefox or Safari.</li><li>If you experience problems in the conference, please ensure that <a href="https://visavid.de/hilfe/faq/funktionen-im-raum/warum-kann-der-raum-nicht-betreten-werden/">the necessary firewall permissions (German)</a> are set.</li></ul>
 info_set_owner#:#owner entered
 info_svr_private_port#:#Example: 443
 info_svr_private_url#:#Always corresponds to the public URL, with the exception of Amazon EC2
@@ -177,11 +178,14 @@ info_title#:#This title is displayed for selecting the meeting type for new obje
 info_top_moderated_edudip#:#You have moderator rights and can start the meeting.
 info_top_moderated_m_bbb#:#This is a moderated room and you can always enter the meeting room only when a person with moderator function is in the room.
 info_top_moderated_m_om#:#This is a moderated room and you can always enter the meeting room only when a person with moderator function is in the room.
+info_top_moderated_m_visavid#:#This room can only be entered if a moderator is present. Otherwise you will be placed in the waiting room. 
 info_top_moderated_webex#:#You have moderator rights and can start the meeting. To do this, you need an account at Webex or at a Webex hosted site. Participants cannot join until the meeting is started by a moderator.
 info_top_moderator_bbb#:#<b>This is a moderated room and you have the moderator function in this room.</b><br/>People without a moderator function can only enter the meeting room when a person with a moderator function is in the room.
 info_top_moderator_om#:#<b>This is a moderated room and you have the moderator function in this room.</b><br/>People without a moderator function can only enter the meeting room when a person with a moderator function is in the room.
+info_top_moderator_visavid#:#VVD-<b>This is a moderated room and you have the moderator function in this room.</b><br/>People without a moderator function can only enter the meeting room when a person with a moderator function is in the room.
 info_top_not_moderated_bbb#:#This meeting room is not moderated. Therefore, you also have a moderator function and therefore extended rights. You can restrict the rights of other people and also end the session. Please use the extended rights responsibly.
 info_top_not_moderated_om#:#This meeting room is not moderated. Therefore, you also have a moderator function and therefore extended rights. You can restrict the rights of other people and also end the session. Please use the extended rights responsibly.
+info_top_not_moderated_visavid#:#This meeting room is not moderated. Therefore, you also have a moderator function and therefore extended rights. You can restrict the rights of other people and also end the session. Please use the extended rights responsibly.
 info_webex_client_id#:#The client ID can be found in the data for your Webex integration (e.g. admin.webex.com, developer.webex.com).
 info_webex_client_secret#:#The client secret is displayed once after creating / updating a Webex integration.
 info_webex_redirect_uri#:#Add this address as Redirect URI in the integration settings.
@@ -295,6 +299,7 @@ recording_only_for_moderated_rooms_default#:#Recording only in moderated rooms
 recording_only_for_moderated_rooms_info#:#Only in moderated rooms can persons with moderator function start recordings.
 recording_only_for_moderated_rooms#:#Record only in moderated rooms
 recording_warning#:#The recording option has been activated for this meeting! By actively using the chat system, turning on my personal microphone / camera and/or sharing screen content, I agree that this information will be captured during the recording and stored for later use.
+recording_warning_visavid#:#The recording function is activated for this room. When I enter the room, I agree that my name, image, sound and chat messages may appear in a recording. By deactivating the webcam and microphone and refraining from sending chat messages in the main room, I can prevent this from becoming part of the recording.
 recs_locked#:#Recordings locked
 recs_published#:#Recordings released
 recurrence_#:#-
@@ -415,6 +420,38 @@ user_results#:#Attendance times
 user_results_desc#:#Time is only displayed for meetings that have already ended. Meetings must also have reached the scheduled end.
 user_start#:#first start
 user_time#:#Attendance time
+vvd_domain#:#Visavid domain
+vvd_domain_info#:#URL of the Visavid system where the room is to be created
+vvd_token#:#API token
+vvd_token_info#:#API token for authentication with the Visavid system
+vvd_filesize#:#Filesize
+vvd_info_bottom#:<ul><li>Please <b>use a headset</b> to avoid annoying feedback or echoes!</li><li><b>If your Internet connection is poor</b>, you should switch off your camera (webcam) and if the connection is even worse, you should use a telephone conference for the transmission of the sound.</li><li>By using Visavid you agree to the <a href="https://visavid.de/nutzungsbedingungen/" terms of use (German)</a>.</li></ul>
+vvd_setting_meeting_layout#:#Room View
+vvd_setting_meeting_layout_speaker#:#Speaker
+vvd_setting_meeting_layout_conference#:#Conference
+vvd_setting_meeting_layout_favorite#:#Favorites
+vvd_setting_hide_username_logs#:#Hide username
+vvd_setting_hide_username_logs_info#:If selected, the user overview is not visible in the MultiVc object.
+vvd_setting_cb_moderated_choose#:#moderated room: selection option
+vvd_setting_cb_moderated_choose_info#:#Activate this option if you want users with write access to select 'moderated room' under Settings.
+vvd_setting_cb_moderated_default#:#moderated room: Default setting
+vvd_setting_cb_moderated_default_info#:#Activate this option if new rooms are to be created as moderated rooms.
+vvd_setting_private_chat_choose#:#Allow private chat: Selection option
+vvd_setting_private_chat_choose_info#:#Enable this option if you want users with write permissions to have 'Allow private chat' selected under Settings.
+vvd_setting_private_chat_default#:#Allow private chat: Default setting
+vvd_setting_private_chat_default_info#:#If activated, even people without moderator function can have a private chat with each other. Persons with moderator function do not see these chats. Since persons with moderator function can prevent private chats at any time, this option should be activated in most cases.
+vvd_setting_recording_choose#:#Allow recordings: Selection option
+vvd_setting_recording_choose_info#:#Activate this option if you want users with write permissions to select 'Allow capturing' under Settings. This option should not be activated in most cases.
+vvd_setting_recording_default#:#Allow recordings: Default setting
+vvd_setting_recording_default_info#:#This option should be deactivated in most cases, so that people cannot use the recording function in the virtual room.
+vvd_setting_cam_only_for_moderator_choose#:#Camera only for moderators: Option
+vvd_setting_cam_only_for_moderator_choose_info#:#Activate this option if you want users with write access to select 'Camera only for moderators' under Settings. This option should be activated in most cases.
+vvd_setting_cam_only_for_moderator_default#:#Camera for moderators only: Default setting
+vvd_setting_cam_only_for_moderator_default_info#:#This option should be deactivated in most cases and should only be activated if a high numbers of participants is expected. Moderators always have the option to change the setting in Visavid during a session.
+vvd_setting_guestlink_choose#:#Guestlink selection option
+vvd_setting_guestlink_choose_info#:#Enable this option if you want users with write permissions to have 'Allow guest link' selected under Settings.
+vvd_setting_guestlink_default#:#Guestlink Default
+vvd_setting_guestlink_default_info#:#This option should be disabled in most cases. A use by unauthorized persons should be largely prevented.
 wait_join_meeting#:#<b>Currently no person with moderator function is present in the virtual meeting room.<br/>Please wait and call this page again in one minute.</b>
 wait_join_meeting_edudip#:#Currently you cannot join any webinar.
 wait_join_meeting_guest#:#<b>Currently no person with moderator function is present in the virtual meeting room.<br/>Please wait and click on 'Join Meeting' again in one minute.</b>

@@ -41,6 +41,10 @@ class ilMultiVcPlugin extends ilRepositoryObjectPlugin
             $ilDB->dropTable('rep_robj_xmvc_conn');
         }
 
+        if ($ilDB->tableExists('rep_robj_xmvc_vvd')) {
+            $ilDB->dropTable('rep_robj_xmvc_vvd');
+        }
+
         if ($ilDB->tableExists('rep_robj_xmvc_log_max')) {
             $ilDB->dropTable('rep_robj_xmvc_log_max');
         }
