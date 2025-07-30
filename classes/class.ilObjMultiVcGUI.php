@@ -278,9 +278,6 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 $this->checkPermission("read_learning_progress");
                 $this->$cmd();
                 break;
-            case "generateNewGuestlink":
-                var_dump("guestlink");exit;
-                break;
         }
     }
 
