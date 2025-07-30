@@ -309,14 +309,14 @@ Besondere Infos zu einzelnen Funktionalitäten:
 
 ### Raum-Darstellung
 
-In Visavid können folgende drei verschiedene Darstellungen gewählt werden. Ein Moderator kann die Darstellung für den Raum bei Bedarf f+r alle Teilnehmer erzwingen.
+In Visavid können folgende drei verschiedene Darstellungen gewählt werden. Ein Moderator kann die Darstellung für den Raum bei Bedarf für alle Teilnehmer erzwingen.
 
 Sprecher-Darstellung
 - Hier werden die aktuell sprechenden Personen am Bildschirmrand hervorgehoben
 - Der größte Bereich der Konferenz wird durch das geteilte Medium eingenommen (Bildschirmfreigabe oder Whiteboard, ansonsten Webcam eines Sprechers) 
 - Wenn mehrere Bildschirmfreigaben oder Whiteboards geteilt werden, kann durch diese geblättert werden
 
-KOnferenz-Darstellung
+Konferenz-Darstellung
 - Hier werden alle Teilnehmer und Medien in einer Gitteransicht angezeigt (bis zu 35 Kacheln pro Seite)
 - Einzelne Medien wie Bildschirmfreigaben können in einem separaten Fenster geöffnet werden
 
@@ -334,8 +334,8 @@ Favoriten-Darstellung
 
 ### Aufzeichnung
 
-- Die Aufzeichnung ist die einzige Einstellung, welche zur Laufzeit der Konferenz nicht verändert werden kann
-- Ist die Aufziechnungsfunktion aktiv, so können Moderatoren diese in der Konferenz starten
+- Die Aufzeichnung ist die einzige Einstellung, welche nicht zur Laufzeit der Konferenz verändert werden kann
+- Ist die Aufzeichnungsfunktion aktiv, so können Moderatoren diese in der Konferenz starten und stoppen
 - Die Konferenz wird in der Sprecher-Darstellung aufgezeichnet
 - Die Aufzeichnung kann nach Schließen des Raums und einer kurzen Verarbeitungszeit (je nach Länge der Aufzeichnung) in der Meeting-Übersicht heruntergeladen werden
 
