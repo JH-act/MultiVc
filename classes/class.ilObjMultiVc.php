@@ -313,11 +313,17 @@ class ilObjMultiVc extends ilObjectPlugin implements ilLPStatusPluginInterface
     {
         $ilDB = $this->db;
         $id = $ilDB->quote($this->getId(), "integer");
+        $vcType = ilMultiVcConfig::getInstance($this->getConnId())->getShowContent();
 
         #$ilDB->manipulate("DELETE FROM rep_robj_xmvc_session WHERE obj_id = ".$ilDB->quote($this->getId(), "integer"));
         $ilDB->manipulate("DELETE FROM rep_robj_xmvc_schedule WHERE obj_id = " . $id);
         $ilDB->manipulate("DELETE FROM rep_robj_xmvc_data WHERE id = " . $id);
-        $ilDB->manipulate("DELETE FROM rep_robj_xmvc_vvd WHERE ref_id = " . $id); 
+        
+        if($vcType === 'visavid') {
+            $vvd = new ilApiVisavid($this);
+            $vvd->deleteRoom();
+            $ilDB->manipulate("DELETE FROM rep_robj_xmvc_vvd WHERE ref_id = " . $id); 
+        }
     }
 
     protected function doCloneObject(ilObject2 $new_obj, int $a_target_id, ?int $a_copy_id = 0): void

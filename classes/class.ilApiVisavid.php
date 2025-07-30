@@ -18,12 +18,16 @@ class ilApiVisavid implements ilApiInterface
     private string $userRole;
     private ?array $room = null;
 
-    public function __construct(\ilObjMultiVcGUI $a_parent)
+    public function __construct(\ilObjMultiVcGUI|\ilObjMultiVc $parent_or_object)
     {
         global $DIC;
         $this->dic = $DIC;
+        
+        // normally parent, but object when deleting from trash 
+        $this->object = $parent_or_object instanceof \ilObjMultiVcGUI
+            ? $parent_or_object->object
+            : $parent_or_object;
 
-        $this->object = $a_parent->object;
         $this->settings = ilMultiVcConfig::getInstance($this->object->getConnId());
         $this->setUserRole();
     }
@@ -32,63 +36,6 @@ class ilApiVisavid implements ilApiInterface
     {
         return $this->group;
     }
-
-// Visavid Room API v1.1.0 
-// {
-//   "id": "<string>",
-//   "name": "<string>",
-//   "description": "<string>",
-//   "requireCode": "<boolean>",
-//   "onlyAllowIndividualCodes": "<boolean>",
-//   "downloadFiles": "<boolean>",
-//   "uploadFiles": "<boolean>",
-//   "private": "<boolean>",
-//   "lockAfterMinutes": "<integer>",
-//   "webcam": "<boolean>",
-//   "microphone": "<boolean>",
-//   "screensharing": "<boolean>",
-//   "whiteboard": "<boolean>",
-//   "raiseHand": "<boolean>",
-//   "emojis": "<boolean>",
-//   "recording": "<boolean>",
-//   "enterWithoutModerator": "<boolean>",
-//   "downloadChat": "<boolean>",
-//   "chat": "<boolean>",
-//   "chat1to1": "<boolean>",
-//   "anonymous": "<boolean>",
-//   "earlyEnterWindow": "<integer>",
-//   "waitingroom": "<boolean>",
-//   "lockInactiveRoom": "<boolean>",
-//   "attendance": {
-//     "attendanceLogging": "<boolean>",
-//     "activeAFKCheck": "<boolean>",
-//     "afkMinMinute": "<integer>",
-//     "afkMaxMinute": "<integer>"
-//   },
-//   "invitation": {
-//     "subject": "<string>",
-//     "body": "<string>",
-//     "fromName": "<string>",
-//     "replyTo": "<string>"
-//   },
-//   "view": "CONFERENCE",
-//   "bigEvent": "<boolean>",
-//   "breakoutroomConfig": {
-//     "enabled": "<boolean>",
-//     "timeLimit": "<integer>",
-//     "maxByGroup": "<integer>",
-//     "unlockDocs": "<boolean>",
-//     "freeHopping": "<boolean>",
-//     "chat": "<boolean>",
-//     "webcamTeilnehmer": "<boolean>",
-//     "mikrofonTeilnehmer": "<boolean>",
-//     "screensharingTeilnehmer": "<boolean>",
-//     "whiteboardTeilnehmer": "<boolean>",
-//     "distribution": "moderator"
-//   },
-//   "begin": "<dateTime>",
-//   "end": "<dateTime>"
-// }
 
     public function loadRoom($id = null) {
         $domain = $this->settings->getSvrPublicUrl();
@@ -311,29 +258,12 @@ class ilApiVisavid implements ilApiInterface
         exit;
     }
 
+    public function deleteRoom() {
+        $this->curlDelete('delete_room');
+    }
+
     public function deleteRecord($recId) {
-        $token = $this->settings->getSvrSalt();
-        $roomId = $this->getRoom()['id'];
-        $url = $this->buildUrl('delete_recording', $roomId, $recId);
-        $ch = curl_init($url);
-
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $token
-        ]);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        if (curl_errno($ch)) {
-            throw new \Exception('cURL error deleting Visavid Recording (id: ' . $recId .'): ' . curl_error($ch));
-        }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode !== 200) {
-            throw new \Exception('Unexpected HTTP Status code deleting Visavid Recording (id: ' . $recId .'): ' . $httpCode);
-        }
+        $this->curlDelete('delete_recording', $recId);
     }
 
     public function hasSessionObject(): bool
@@ -397,14 +327,27 @@ class ilApiVisavid implements ilApiInterface
         return true;
     }
 
-    private function getRoom() {
+    /**
+     * Tries to load roomId from DB or roomm
+     * Does not load/create the room!
+     */
+    private function getRoomId() {
         if($this->room === null) {
             $ilDB = $this->dic->database();
             $roomId = null;
-            $result = $ilDB->query('SELECT v.id FROM rep_robj_xmvc_data d INNER JOIN rep_robj_xmvc_vvd v ON d.id = v.ref_id WHERE d.id = ' . $ilDB->quote($this->object->getId(), 'integer')); 
+            $result = $ilDB->query('SELECT id FROM rep_robj_xmvc_vvd WHERE ref_id = ' . $ilDB->quote($this->object->getId(), 'integer')); 
             while ($row = $ilDB->fetchAssoc($result)) {
                 $roomId = $row['id'];
             }
+
+            return $roomId;
+        }
+        return $this->room['id'];
+    }
+
+    private function getRoom() {
+        if($this->room === null) {
+            $roomId = $this->getRoomId();
             return $this->loadRoom($roomId);
         }
         return $this->room;
@@ -505,6 +448,37 @@ class ilApiVisavid implements ilApiInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Accept: application/json',
+            'Authorization: Bearer ' . $token
+        ]);
+
+        $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($curlErrno) {
+            throw new \Exception('cURL error calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . '): ' . $curlError);
+        }
+
+        if ($httpCode !== 200) {
+            throw new \Exception('Unexpected HTTP status code ' . $httpCode . ' calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . ')');
+        }
+    }
+
+    private function curlDelete(string $type, ?string $id = null) {
+        $token = $this->settings->getSvrSalt();
+        $roomId = $this->getRoomId();
+        if ($roomId === null) {
+            throw new \Exception('Failed to load Visavid roomId (type: ' . $type);
+        }
+
+        $url = $this->buildUrl($type, $roomId, $id);
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $token
         ]);
 
