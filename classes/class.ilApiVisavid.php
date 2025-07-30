@@ -119,7 +119,8 @@ class ilApiVisavid implements ilApiInterface
 
 
         $jsonData = json_encode($data);
-        $url = $this->buildUrl($id === null ? 'create_room' : 'update_room', $id);
+        $type = $id === null ? 'create_room' : 'update_room';
+        $url = $this->buildUrl($type, $id);
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $id === null ? 'POST' : 'PATCH');
@@ -132,20 +133,22 @@ class ilApiVisavid implements ilApiInterface
         ]);
 
         $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if (curl_errno($ch)) {
-            throw new \Exception('cURL error accessing Visavid API (url: ' . $url .'): ' . curl_error($ch));
+        if ($curlErrno) {
+            throw new \Exception('cURL error calling Visavid API (type: ' . $type . ', roomId: ' . $id . ', url: ' . $url . '): ' . $curlError);
         }
 
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if($id !== null && $httpCode === 404) {
+        if ($id !== null && $httpCode === 404) {
             // Raum am Visavid-System nicht mehr verfügbar - neu erstellen
             // TODO delete Eintrag in DB
-            return $this->loadRoom();    
+            return $this->loadRoom();   
         }
-        else if ($httpCode !== 200) {
-            throw new \Exception('Unexpected HTTP Status code accessing Visavid API (url: ' . $url .'): ' . $httpCode);
+        elseif ($httpCode !== 200) {
+            throw new \Exception('Unexpected HTTP status code ' . $httpCode . ' calling Visavid API (type: ' . $type . ', roomId: ' . $id . ', url: ' . $url . ')');
         }
 
         $room = json_decode($response, true);
@@ -190,6 +193,10 @@ class ilApiVisavid implements ilApiInterface
     public function exportAttendanceData() {
         $roomId = $this->getRoom()['id'];
         $attendance = $this->curlGet('attendance_export', $roomId);
+        if(empty($attendance)) {
+            throw new \Exception('Error during visavid attendance export (roomId: ' . $roomId . ')');
+        }
+
         $attendance_json = json_encode($attendance, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $filename = "visavid_anwesenheiten.json";
 
@@ -200,6 +207,7 @@ class ilApiVisavid implements ilApiInterface
         header('Expires: 0');
 
         echo $attendance_json;
+        exit;
     }
 
     /**
@@ -208,8 +216,11 @@ class ilApiVisavid implements ilApiInterface
     public function getAttendanceData() {
         $roomId = $this->getRoom()['id'];
         $attendance = $this->curlGet('attendance', $roomId);
-        $timezone = new DateTimeZone('Europe/Berlin');
+        if(empty($attendance)) {
+            return [];
+        }
 
+        $timezone = new DateTimeZone('Europe/Berlin');
         $data = [];
         foreach ($attendance as $session) {
             foreach ($session['participants'] as $participant) {
@@ -246,14 +257,14 @@ class ilApiVisavid implements ilApiInterface
         // load room sessions with recordings
         $roomId = $this->getRoom()['id'];
         $sess = $this->curlGet('sessions', $roomId);
-        
+        if(empty($sess)) {
+            return [];
+        }
+
+        // load corresponding recordings
         $recList = [];
-        
-        if($sess !== null) {
-            // load corresponding recordings
-            foreach($sess as $s) {
-                $recList = array_merge($recList, $this->getRecordingsForSession($s['id']));
-            }
+        foreach($sess as $s) {
+            $recList = array_merge($recList, $this->getRecordingsForSession($s['id']));
         }
         return $recList;
     }
@@ -261,18 +272,20 @@ class ilApiVisavid implements ilApiInterface
     private function getRecordingsForSession($sessId) {
         $roomId = $this->getRoom()['id'];
         $res = $this->curlGet('recordings', $roomId, $sessId);
+        if(empty($res)) {
+            return [];
+        }
+
+        // map recordings to MultiVC Recording list
         $recList = [];
-        if($res !== null) {
-            // map recordings to MultiVC Recording list
-            foreach($res as $rec) {
-                $recList[$rec['id']] = [
-                    'START_TIME' => (new DateTimeImmutable($rec['start']))->getTimestamp(),
-                    'END_TIME' => (new DateTimeImmutable($rec['stop']))->getTimestamp(),
-                    'SESSION_ID' => $rec['id'],
-                    'FILE_SIZE' => $rec['size'],
-                    'ROOM_ID' => $this->getRoom()['id']
-                ];
-            }
+        foreach($res as $rec) {
+            $recList[$rec['id']] = [
+                'START_TIME' => (new DateTimeImmutable($rec['start']))->getTimestamp(),
+                'END_TIME' => (new DateTimeImmutable($rec['stop']))->getTimestamp(),
+                'SESSION_ID' => $rec['id'],
+                'FILE_SIZE' => $rec['size'],
+                'ROOM_ID' => $this->getRoom()['id']
+            ];
         }
         return $recList;
     }
@@ -280,7 +293,7 @@ class ilApiVisavid implements ilApiInterface
     public function downloadRecording($recId) {
         $roomId = $this->getRoom()['id'];
         $file = $this->curlGet('download_recording', $roomId, $recId);
-        if ($file === null || strlen($file) === 0) {
+        if (empty($file) || strlen($file) === 0) {
             throw new \Exception('Error when downloading visavid recording (roomId: ' . $this->getRoom()['id'] . ', id: ' . $recId .'): ');
         }
 
@@ -444,7 +457,7 @@ class ilApiVisavid implements ilApiInterface
     private function curlGet(string $type, ?string $roomId = null, ?string $id = null) {
         $token = $this->settings->getSvrSalt();
         $url = $this->buildUrl($type, $roomId, $id);
-        if(!$url) {
+        if (!$url) {
             throw new \Exception('Error when building URL for Visavid API request');
         }
 
@@ -457,18 +470,19 @@ class ilApiVisavid implements ilApiInterface
         curl_setopt($ch, CURLOPT_HTTPHEADER, [$accept, $authorization]);
 
         $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if (curl_errno($ch)) {
-            throw new \Exception('cURL error for GET Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url .'): ' . curl_error($ch));
+        if ($curlErrno) {
+            throw new \Exception('cURL error calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . '): ' . $curlError);
         }
 
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if($httpCode === 404) {
+        if ($httpCode === 404) {
             return null;
-        }
-        else if ($httpCode !== 200) {
-            throw new \Exception('Unexpected HTTP Status code for GET Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url .'): ' . $httpCode);
+        } elseif ($httpCode !== 200) {
+            throw new \Exception('Unexpected HTTP status code ' . $httpCode . ' calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . ')');
         }
 
         return $type === 'download_recording' ? $response : json_decode($response, true);
@@ -488,15 +502,17 @@ class ilApiVisavid implements ilApiInterface
         ]);
 
         $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if (curl_errno($ch)) {
-            throw new \Exception('cURL error accessing Visavid API (url: ' . $url .'): ' . curl_error($ch));
+        if ($curlErrno) {
+            throw new \Exception('cURL error calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . '): ' . $curlError);
         }
 
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode !== 200) {
-            throw new \Exception('Unexpected HTTP Status code accessing Visavid API (url: ' . $url .'): ' . $httpCode);
+            throw new \Exception('Unexpected HTTP status code ' . $httpCode . ' calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . ')');
         }
     }
 
