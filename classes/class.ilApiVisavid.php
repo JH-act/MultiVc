@@ -8,7 +8,6 @@ class ilApiVisavid implements ilApiInterface
     /** @var bool|ilObjGroup $group */
     private $group;
     private ILIAS\DI\Container $dic;    
-    // TODO müsste der (laufende?) Raum sein.. 
     private ?ilObjSession $ilObjSession = null;
     private ?ilObjCourse $course = null;
     private ?ilObjMultiVc $object;
@@ -23,13 +22,16 @@ class ilApiVisavid implements ilApiInterface
         global $DIC;
         $this->dic = $DIC;
         
-        // normally parent, but object when deleting from trash 
-        $this->object = $parent_or_object instanceof \ilObjMultiVcGUI
-            ? $parent_or_object->object
-            : $parent_or_object;
-
+        if ($parent_or_object instanceof \ilObjMultiVcGUI) {
+            // normal case: user interacts with the multivc object
+            $this->object = $parent_or_object->object;
+            $this->setUserRole();
+        }
+        else {
+            // special cases: user deletes multivc object from trash or uninstalls plugin
+            $this->object = $parent_or_object;         
+        }
         $this->settings = ilMultiVcConfig::getInstance($this->object->getConnId());
-        $this->setUserRole();
     }
 
     public function getGroup(): bool|ilObject
@@ -50,7 +52,7 @@ class ilApiVisavid implements ilApiInterface
         $isGuestlink = $this->object->isGuestlink();
 
 
-        // TODO wenn wir room templates nutzen, können Einstellungen leichter überschrieben statt hier hardcoded zu werden
+        // Improvement: wenn wir room templates nutzen, können Einstellungen leichter überschrieben statt hier hardcoded zu werden
         $data = [
             'name' => $title,
             'description' => $desc,
@@ -90,9 +92,10 @@ class ilApiVisavid implements ilApiInterface
         }
 
         if ($id !== null && $httpCode === 404) {
-            // Raum am Visavid-System nicht mehr verfügbar - neu erstellen
-            // TODO delete Eintrag in DB
-            return $this->loadRoom();   
+            // Raum am Visavid-System nicht mehr verfügbar - Eintrag in DB entfernen und Raum neu erstellen
+            $ilDB = $this->dic->database();
+            $ilDB->manipulate("DELETE FROM rep_robj_xmvc_vvd WHERE id = " . $id); 
+            return $this->loadRoom();
         }
         elseif ($httpCode !== 200) {
             throw new \Exception('Unexpected HTTP status code ' . $httpCode . ' calling Visavid API (type: ' . $type . ', roomId: ' . $id . ', url: ' . $url . ')');
@@ -101,8 +104,7 @@ class ilApiVisavid implements ilApiInterface
         $room = json_decode($response, true);
         if($id === null) {
             // Neuer Raum wurde erstellt: Id merken
-            // TODO nur noch id und ggf. template id persistieren
-            $this->persistVisavidRoom($room['id'], $room['dialIn']['moderatorLink'], $room['dialIn']['participantLink']);
+            $this->persistVisavidRoom($room['id']);
         }
         
         $this->room = $room;
@@ -146,7 +148,7 @@ class ilApiVisavid implements ilApiInterface
      * Exports Visavid attendance data as json
      */
     public function exportAttendanceData() {
-        $roomId = $this->getRoom()['id'];
+        $roomId = $this->getRoomId();
         $attendance = $this->curlGet('attendance_export', $roomId);
         $attendance_json = json_encode($attendance, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $filename = "visavid_anwesenheiten.json";
@@ -165,7 +167,7 @@ class ilApiVisavid implements ilApiInterface
      * Load attendance data for all sessions of the room
      */
     public function getAttendanceData() {
-        $roomId = $this->getRoom()['id'];
+        $roomId = $this->getRoomId();
         $attendance = $this->curlGet('attendance', $roomId);
         if(empty($attendance)) {
             return [];
@@ -182,7 +184,7 @@ class ilApiVisavid implements ilApiInterface
                     $joinFormatted = $join->format('d.m.Y H:i \U\h\r');
                     $leave = new DateTime($period['end']);
                     $leave->setTimezone($timezone);
-                    $leaveFormatted = $join->format('d.m.Y H:i \U\h\r');
+                    $leaveFormatted = $leave->format('d.m.Y H:i \U\h\r');
 
                     $data[] = [
                         'DISPLAY_NAME' => $name,
@@ -206,7 +208,7 @@ class ilApiVisavid implements ilApiInterface
      */
     public function getRecordings() {
         // load room sessions with recordings
-        $roomId = $this->getRoom()['id'];
+        $roomId = $this->getRoomId();
         $sess = $this->curlGet('sessions', $roomId);
         if(empty($sess)) {
             return [];
@@ -221,7 +223,7 @@ class ilApiVisavid implements ilApiInterface
     }
 
     private function getRecordingsForSession($sessId) {
-        $roomId = $this->getRoom()['id'];
+        $roomId = $this->getRoomId();
         $res = $this->curlGet('recordings', $roomId, $sessId);
         if(empty($res)) {
             return [];
@@ -237,7 +239,7 @@ class ilApiVisavid implements ilApiInterface
                     'END_TIME' => (new DateTimeImmutable($rec['stop']))->getTimestamp(),
                     'SESSION_ID' => $rec['id'],
                     'FILE_SIZE' => $rec['size'],
-                    'ROOM_ID' => $this->getRoom()['id']
+                    'ROOM_ID' => $this->getRoomId()
                 ];
             }
         }
@@ -245,10 +247,10 @@ class ilApiVisavid implements ilApiInterface
     }
 
     public function downloadRecording($recId) {
-        $roomId = $this->getRoom()['id'];
+        $roomId = $this->getRoomId();
         $file = $this->curlGet('download_recording', $roomId, $recId);
         if (empty($file) || strlen($file) === 0) {
-            throw new \Exception('Error when downloading visavid recording (roomId: ' . $this->getRoom()['id'] . ', id: ' . $recId .'): ');
+            throw new \Exception('Error when downloading visavid recording (roomId: ' . $roomId . ', id: ' . $recId .'): ');
         }
 
         header('Content-Type: application/octet-stream');
@@ -285,14 +287,12 @@ class ilApiVisavid implements ilApiInterface
 
     public function isModeratedMeeting(): bool
     {
-        // TODO
-        return true;
+        return $this->object->get_moderated();
     }
 
     public function isMeetingRecordable(): bool
     {
-        // TODO
-        return true;
+        return $this->object->isRecordingAllowed();
     }
 
     /**
@@ -315,7 +315,7 @@ class ilApiVisavid implements ilApiInterface
      * always true: Anyone can start the meeting
      */
     public function isMeetingRunning(): bool
-    {
+    { 
         return true;
     }
 
@@ -356,7 +356,7 @@ class ilApiVisavid implements ilApiInterface
     /**
      * persist visavid specific data
      */
-    private function persistVisavidRoom($roomId, $moderatorLink, $participantLink) {
+    private function persistVisavidRoom($roomId) {
         $ilDB = $this->dic->database();
 
         // remove existing entries for this ref_id
@@ -366,8 +366,6 @@ class ilApiVisavid implements ilApiInterface
         $a_data = array (
             'id' => array('string', $roomId),
             'ref_id' => array('string', $this->object->getId()),
-            'url_mod' => array('string', $moderatorLink),
-            'url_par' => array('string', $participantLink),
         );
         $ilDB->insert('rep_robj_xmvc_vvd', $a_data);
     }
@@ -440,7 +438,7 @@ class ilApiVisavid implements ilApiInterface
 
     private function curlPOST(string $type) {
         $token = $this->settings->getSvrSalt();
-        $roomId = $this->getRoom()['id'];
+        $roomId = $this->getRoomId();
         $url = $this->buildUrl($type, $roomId);
         $ch = curl_init($url);
 

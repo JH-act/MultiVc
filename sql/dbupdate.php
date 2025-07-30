@@ -1451,18 +1451,6 @@ $fields_data = array(
         'length' => 8,
         'notnull' => true
     ),
-    // join URL for moderators
-    'url_mod' => array( 
-        'type' => 'text',
-        'length' => 255,
-        'notnull' => true
-    ),
-    // join URL for participants
-    'url_par' => array( 
-        'type' => 'text',
-        'length' => 255,
-        'notnull' => true
-    ),
 );
 if(!$ilDB->tableExists("rep_robj_xmvc_vvd")) {
     $ilDB->createTable("rep_robj_xmvc_vvd", $fields_data);
