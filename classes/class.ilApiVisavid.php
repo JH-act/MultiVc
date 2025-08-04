@@ -120,7 +120,7 @@ class ilApiVisavid implements ilApiInterface
     public function getUrlJoinMeeting() {
         $room = $this->getRoom();
         if($room === null) {
-            $this->logAndShowError();
+            $this->logAndShowError("Visavid room not found");
             return;
         }
             
@@ -138,7 +138,7 @@ class ilApiVisavid implements ilApiInterface
     public function getInviteUserUrl() {
         $room = $this->getRoom();
         if($room === null) {
-            $this->logAndShowError();
+            $this->logAndShowError("Visavid room not found");
             return;
         }
         return $room['dialIn']['participantLink'];
@@ -163,7 +163,8 @@ class ilApiVisavid implements ilApiInterface
     public function exportAttendanceData() {
         $roomId = $this->getRoomId();
         if ($roomId === null) {
-            $this->logAndShowError();
+            $this->logAndShowError("Visavid roomId not found");
+
             return;
         }
 
@@ -191,7 +192,7 @@ class ilApiVisavid implements ilApiInterface
     public function getAttendanceData() {
         $roomId = $this->getRoomId();
         if ($roomId === null) {
-            $this->logAndShowError();
+            $this->logAndShowError("Visavid roomId not found");
             return;
         }
 
@@ -237,7 +238,7 @@ class ilApiVisavid implements ilApiInterface
         // load room sessions with recordings
         $roomId = $this->getRoomId();
         if ($roomId === null) {
-            $this->logAndShowError();
+            $this->logAndShowError("Visavid roomId not found");
             return;
         }
 
@@ -257,7 +258,7 @@ class ilApiVisavid implements ilApiInterface
     private function getRecordingsForSession($sessId) {
         $roomId = $this->getRoomId();
         if ($roomId === null) {
-            $this->logAndShowError();
+            $this->logAndShowError("Visavid roomId not found");
             return;
         }
 
@@ -286,7 +287,7 @@ class ilApiVisavid implements ilApiInterface
     public function downloadRecording($recId) {
         $roomId = $this->getRoomId();
         if ($roomId === null) {
-            $this->logAndShowError();
+            $this->logAndShowError("Visavid roomId not found");
             return;
         }
 
@@ -546,11 +547,11 @@ class ilApiVisavid implements ilApiInterface
         }
     }
 
-    private function logAndShowError(?string $msg = null, ?bool $keep = false) {
-        if($msg !== null) {
-            $this->dic->logger()->root()->error($msg);
-        }
-        $this->dic->ui()->mainTemplate()->setOnScreenMessage('failure', 'Bei der Kommunikation mit Visavid ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', $keep);
+    private function logAndShowError(string $msg = null, ?bool $keep = false) {
+        $this->dic->logger()->root()->error($msg);
+        // Nur loggen und Fehler anzeigen wäre schöner, aber so kann man Fehler leichter einsehen / schneller nachvollziehen
+        throw new \Exception($msg);
+        // $this->dic->ui()->mainTemplate()->setOnScreenMessage('failure', 'Bei der Kommunikation mit Visavid ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', $keep);
     }
 
 ////////////////////////////////////////
