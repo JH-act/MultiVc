@@ -2209,7 +2209,10 @@ class ilObjMultiVcGUI extends ilObjectPluginGUI
                 break;
             case $query->has('startVISAVID') && $query->retrieve('startVISAVID', $this->dic->refinery()->kindlyTo()->int()) === 1:
                 // Page was loaded with params to start visavid room
-                $this->redirectToPlatformByUrl($vvd->getUrlJoinMeeting(), $vvd);
+                $url = $vvd->getUrlJoinMeeting();
+                if ($url !== null) {
+                    $this->redirectToPlatformByUrl($url, $vvd);
+                }
                 break;
             case $query->has('recordingVisavid') && $query->retrieve('recordingVisavid', $this->dic->refinery()->kindlyTo()->int()) === 1:
                 // Page was loaded with params to download recording
