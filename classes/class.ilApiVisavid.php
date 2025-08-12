@@ -537,13 +537,11 @@ class ilApiVisavid implements ilApiInterface
         curl_close($ch);
 
         if ($curlErrno) {
-            $this->logAndShowError('cURL error calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . '): ' . $curlError);
-            return;
-        }
-
-        if ($httpCode !== 200) {
-            $this->logAndShowError('Unexpected HTTP status code ' . $httpCode . ' calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . ')');
-            return;
+            $this->dic->logger()->root()->error('cURL error calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . '): ' . $curlError);
+        } 
+        elseif ($httpCode !== 200 && $httpCode !== 404) {
+            // do nothing for 404 - resource does not exist in visavid system (anymore)
+            $this->dic->logger()->root()->error('Unexpected HTTP status code ' . $httpCode . ' calling Visavid API (type: ' . $type . ', roomId: ' . $roomId . ', url: ' . $url . ')');
         }
     }
 
@@ -555,7 +553,7 @@ class ilApiVisavid implements ilApiInterface
     }
 
 ////////////////////////////////////////
-///    COPIED FROM ilApiBBB
+///    FOLLOWING CODE IDENTICAL WITH ilApiBBB
 ////////////////////////////////////////
 
     /**
