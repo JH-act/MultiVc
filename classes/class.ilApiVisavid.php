@@ -51,8 +51,6 @@ class ilApiVisavid implements ilApiInterface
         $isCamOnlyForModerator = $this->object->isCamOnlyForModerator();
         $isGuestlink = $this->object->isGuestlink();
 
-
-        // Improvement: wenn wir room templates nutzen, können Einstellungen leichter überschrieben statt hier hardcoded zu werden
         $data = [
             'name' => $title,
             'description' => $desc,
@@ -61,6 +59,9 @@ class ilApiVisavid implements ilApiInterface
             'enterWithoutModerator' => !$isModerated,
             'recording' => $isRecordingAllowed,
             'requireCode' => true,
+            'emojis' => true,
+            'raiseHand' => true,
+            'chat1to1' => true,
             'attendance' => [
                 'attendanceLogging' => true
             ]
