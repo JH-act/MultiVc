@@ -2,22 +2,32 @@
 
 class ilApiVisavid implements ilApiInterface
 {
-    
-    /** @var bool|ilObjCategory $category */
-    public $category;
-    /** @var bool|ilObjGroup $group */
-    private $group;
-    private ILIAS\DI\Container $dic;    
-    private ?ilObjSession $ilObjSession = null;
-    private ?ilObjCourse $course = null;
-    private ?ilObjMultiVc $object;
-    private ?ilMultiVcConfig $settings;
-    /** @var bool|ilObject $parentObj */
-    private $parentObj;
-    private string $userRole;
-    private ?array $room = null;
 
-    public function __construct(\ilObjMultiVcGUI|\ilObjMultiVc $parent_or_object)
+    /** @var bool|ilObjCategory */
+    public $category;
+    /** @var bool|ilObjGroup */
+    private $group;
+    /** @var ILIAS\DI\Container */
+    private $dic;    
+    /** @var ilObjSession|null */
+    private $ilObjSession = null;
+    /** @var ilObjCourse|null */
+    private $course = null;
+    /** @var ilObjMultiVc|null */
+    private $object;
+    /** @var ilMultiVcConfig|null */
+    private $settings;
+    /** @var bool|ilObject */
+    private $parentObj;
+    /** @var string */
+    private $userRole;
+    /** @var array|null */
+    private $room = null;
+
+    /**
+     * @param ilObjMultiVcGUI|ilObjMultiVc $parent_or_object
+     */
+    public function __construct($parent_or_object)
     {
         global $DIC;
         $this->dic = $DIC;
@@ -26,15 +36,17 @@ class ilApiVisavid implements ilApiInterface
             // normal case: user interacts with the multivc object
             $this->object = $parent_or_object->object;
             $this->setUserRole();
-        }
-        else {
+        } else {
             // special cases: user deletes multivc object from trash or uninstalls plugin
             $this->object = $parent_or_object;         
         }
         $this->settings = ilMultiVcConfig::getInstance($this->object->getConnId());
     }
 
-    public function getGroup(): bool|ilObject
+    /**
+     * @return bool|ilObject
+     */
+    public function getGroup()
     {
         return $this->group;
     }
@@ -61,7 +73,6 @@ class ilApiVisavid implements ilApiInterface
             'requireCode' => true,
             'emojis' => true,
             'raiseHand' => true,
-            'chat1to1' => true,
             'attendance' => [
                 'attendanceLogging' => true
             ]
@@ -78,6 +89,7 @@ class ilApiVisavid implements ilApiInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Accept: application/json',
+            'Content-Type: application/json',
             'Authorization: Bearer ' . $token,
             'Content-Length: ' . strlen($jsonData)
         ]);
@@ -96,7 +108,7 @@ class ilApiVisavid implements ilApiInterface
         if ($id !== null && $httpCode === 404) {
             // Raum am Visavid-System nicht mehr verfügbar - Eintrag in DB entfernen und Raum neu erstellen
             $ilDB = $this->dic->database();
-            $ilDB->manipulate("DELETE FROM rep_robj_xmvc_vvd WHERE id = '$id'"); 
+            $ilDB->manipulate('DELETE FROM rep_robj_xmvc_vvd WHERE id = ' . $ilDB->quote($id, 'text'));
             return $this->loadRoom();
         }
         elseif ($httpCode !== 200) {
@@ -133,7 +145,7 @@ class ilApiVisavid implements ilApiInterface
             $this->curlPOST('unlock_room');
         }
 
-        return $baseUrl . (str_contains($baseUrl, '?') ? '&' : '?') . $queryParams;
+        return $baseUrl . (strpos($baseUrl, '?') !== false ? '&' : '?') . $queryParams;
     }
 
     public function getInviteUserUrl() {
@@ -251,13 +263,12 @@ class ilApiVisavid implements ilApiInterface
         // load corresponding recordings
         $recList = [];
         foreach($sess as $s) {
-            $recList = array_merge($recList, $this->getRecordingsForSession($s['id']));
+            $recList = array_merge($recList, $this->getRecordingsForSession($roomId, $s['id']));
         }
         return $recList;
     }
 
-    private function getRecordingsForSession($sessId) {
-        $roomId = $this->getRoomId();
+    private function getRecordingsForSession($roomId, $sessId) {
         if ($roomId === null) {
             $this->logAndShowError("Visavid roomId not found");
             return;
@@ -418,11 +429,11 @@ class ilApiVisavid implements ilApiInterface
         if(!$roomId && $type !== 'create_room') {
             throw new \Exception("Missing roomId for Visavid API-type '$type'");
         }
-        if(!$id && $type === 'recordings' || $type === 'delete_recording') {
+        if(!$id && ($type === 'recordings' || $type === 'delete_recording')) {
             throw new \Exception("Missing id for Visavid API-type '$type' for roomId '$roomId'");
         }
 
-        $domain = $this->settings->getSvrPublicUrl();
+        $domain = rtrim($this->settings->getSvrPublicUrl(), '/');
         $apiRoot = $domain . '/api/verwaltung/v1.2.0/rooms';
         $base = $apiRoot . ($roomId !== null ? '/' . $roomId : '');
 
@@ -496,6 +507,7 @@ class ilApiVisavid implements ilApiInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Accept: application/json',
+            'Content-Type: application/json',
             'Authorization: Bearer ' . $token
         ]);
 
