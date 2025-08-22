@@ -39,6 +39,7 @@ btn_settings_info#:#Activate this option if you want the button and options for 
 btn_settings#:#Settings in the room
 btntext_concurrent_users_check#:#Check availability
 btntext_guest_login_button#:#Login as guest
+btntext_visavid#:#Join Visavid room
 btntext_join_meeting#:#Join Meeting
 btntext_join_webinar#:#Join webinar
 btntext_start_meeting#:#Start Meeting
@@ -134,6 +135,7 @@ guest_password_input_info#:#Please enter the password for the guest link here.
 guest_password_input#:#Password for guests
 headline_welcome_meeting#:#Welcome to the meeting room!
 headline_welcome_webinar#:#Welcome to the webinar!
+headline_welcome_visavid#:#Welcome to the Visavid room!
 hide_recs_until_date#:#Do not display recordings until
 hide_recs_until_date_info#:#Recordings up to the recording date specified here will not be displayed.
 hide_username_logs#:#Hide username
@@ -182,7 +184,7 @@ info_top_moderated_m_visavid#:#This room can only be entered if a moderator is p
 info_top_moderated_webex#:#You have moderator rights and can start the meeting. To do this, you need an account at Webex or at a Webex hosted site. Participants cannot join until the meeting is started by a moderator.
 info_top_moderator_bbb#:#<b>This is a moderated room and you have the moderator function in this room.</b><br/>People without a moderator function can only enter the meeting room when a person with a moderator function is in the room.
 info_top_moderator_om#:#<b>This is a moderated room and you have the moderator function in this room.</b><br/>People without a moderator function can only enter the meeting room when a person with a moderator function is in the room.
-info_top_moderator_visavid#:#VVD-<b>This is a moderated room and you have the moderator function in this room.</b><br/>People without a moderator function can only enter the meeting room when a person with a moderator function is in the room.
+info_top_moderator_visavid#:#<b>This is a moderated room and you have the moderator function in this room.</b><br/>People without a moderator function can only enter the meeting room when a person with a moderator function is in the room.
 info_top_not_moderated_bbb#:#This meeting room is not moderated. Therefore, you also have a moderator function and therefore extended rights. You can restrict the rights of other people and also end the session. Please use the extended rights responsibly.
 info_top_not_moderated_om#:#This meeting room is not moderated. Therefore, you also have a moderator function and therefore extended rights. You can restrict the rights of other people and also end the session. Please use the extended rights responsibly.
 info_top_not_moderated_visavid#:#This meeting room is not moderated. Therefore, you also have a moderator function and therefore extended rights. You can restrict the rights of other people and also end the session. Please use the extended rights responsibly.
@@ -424,6 +426,7 @@ vvd_domain#:#Visavid domain
 vvd_domain_info#:#URL of the Visavid system where the room is to be created
 vvd_token#:#API token
 vvd_token_info#:#API token for authentication with the Visavid system
+vvd_download#:#download
 vvd_filesize#:#Filesize
 vvd_info_bottom#:<ul><li>Please <b>use a headset</b> to avoid annoying feedback or echoes!</li><li><b>If your Internet connection is poor</b>, you should switch off your camera (webcam) and if the connection is even worse, you should use a telephone conference for the transmission of the sound.</li><li>By using Visavid you agree to the <a href="https://visavid.de/nutzungsbedingungen/" terms of use (German)</a>.</li></ul>
 vvd_setting_meeting_layout#:#Room View
