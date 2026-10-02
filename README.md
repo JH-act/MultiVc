@@ -54,8 +54,8 @@ Des Weiteren benötigen Sie eine funktionsfähige Installation des gewünschten 
 
 
 
-# Unterstützte WebRTC-Platformen
-Aktuell werden folgende WebRTC-Platformen unterstützt:
+# Unterstützte Webkonferenz-Systeme
+Aktuell werden folgende Webkonferenz-Systeme unterstützt:
 - [BigBlueButton](#bigbluebutton)
 - [edudip (Webinar)](#edudip-webinar)
 - [Webex](#webex)
