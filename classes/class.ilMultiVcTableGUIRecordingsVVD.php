@@ -1,11 +1,5 @@
 <?php
 
-/**
- * MultiVc plugin: report logged max concurrent values table GUI
- *
- * @author Uwe Kohnle <kohnle@internetlehrer-gmbh.de>
- * @version $Id$
- */
 class ilMultiVcTableGUIRecordingsVVD extends ilTable2GUI
 {
     private ILIAS\DI\Container $dic;
