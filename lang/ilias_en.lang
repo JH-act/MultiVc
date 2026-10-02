@@ -446,8 +446,18 @@ user_start#:#first start
 user_time#:#Attendance time
 vvd_domain#:#Visavid domain
 vvd_domain_info#:#URL of the Visavid system where the room is to be created
-vvd_token#:#API token
-vvd_token_info#:#API token for authentication with the Visavid system
+vvd_secret#:#API token / Client secret
+vvd_secret_info#:#The fixed API token with the "Static token" method, the client secret with the "Client credentials (OAuth 2.0)" method.
+vvd_auth_method#:#Authentication method
+vvd_auth_method_info#:#How ILIAS authenticates against the Visavid system. "Static token" uses a fixed API token, "Client credentials (OAuth 2.0)" obtains a token from an OIDC server (e.g. Keycloak).
+vvd_auth_method_token#:#Static token
+vvd_auth_method_client_credentials#:#Client credentials (OAuth 2.0)
+vvd_token_url#:#Access token URL
+vvd_token_url_info#:#URL of the OIDC token endpoint (e.g. Keycloak) from which the access token is obtained.
+vvd_client_id#:#Client ID
+vvd_client_id_info#:#Client ID for the OAuth 2.0 client credentials flow.
+vvd_scope#:#Scope (optional)
+vvd_scope_info#:#Optional scope for the token request.
 vvd_download#:#download
 vvd_filesize#:#Filesize
 vvd_info_bottom#:<ul><li>Please <b>use a headset</b> to avoid annoying feedback or echoes!</li><li><b>If your Internet connection is poor</b>, you should switch off your camera (webcam) and if the connection is even worse, you should use a telephone conference for the transmission of the sound.</li><li>By using Visavid you agree to the <a href="https://visavid.de/nutzungsbedingungen/" terms of use (German)</a>.</li></ul>

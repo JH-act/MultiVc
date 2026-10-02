@@ -16,6 +16,8 @@ class ilApiVisavid implements ilApiInterface
     private $parentObj;
     private string $userRole;
     private ?array $room = null;
+    private ?string $accessToken = null;
+    private int $accessTokenExpires = 0;
 
     public function __construct(\ilObjMultiVcGUI|\ilObjMultiVc $parent_or_object)
     {
@@ -41,7 +43,7 @@ class ilApiVisavid implements ilApiInterface
 
     public function loadRoom($id = null) {
         $domain = $this->settings->getSvrPublicUrl();
-        $token = $this->settings->getSvrSalt();
+        $token = $this->getAccessToken();
 
         $title = $this->object->getTitle();
         $desc = $this->object->getDescription();
@@ -414,6 +416,68 @@ class ilApiVisavid implements ilApiInterface
         $ilDB->insert('rep_robj_xmvc_vvd', $a_data);
     }
 
+    /**
+     * Returns the bearer token used for Visavid API calls.
+     * Either the configured static token or, in client_credentials mode,
+     * a token obtained from the configured OIDC (Keycloak) token endpoint.
+     * The obtained token is cached in this instance until it expires.
+     */
+    private function getAccessToken(): ?string
+    {
+        if($this->settings->getVvdAuthMethod() !== 'client_credentials') {
+            return $this->settings->getSvrSalt();
+        }
+
+        if($this->accessToken !== null && time() < $this->accessTokenExpires) {
+            return $this->accessToken;
+        }
+
+        $tokenUrl = $this->settings->getVvdTokenUrl();
+        $postFields = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $this->settings->getSvrUsername(),
+            'client_secret' => $this->settings->getSvrSalt(),
+        ];
+        if((bool) strlen($this->settings->getVvdScope())) {
+            $postFields['scope'] = $this->settings->getVvdScope();
+        }
+
+        $ch = curl_init($tokenUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postFields));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json',
+            'Content-Type: application/x-www-form-urlencoded'
+        ]);
+
+        $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if($curlErrno) {
+            $this->dic->logger()->root()->error('cURL error requesting Visavid access token (url: ' . $tokenUrl . '): ' . $curlError);
+            return null;
+        }
+        if($httpCode !== 200) {
+            $this->dic->logger()->root()->error('Unexpected HTTP status code ' . $httpCode . ' requesting Visavid access token (url: ' . $tokenUrl . ')');
+            return null;
+        }
+
+        $token = json_decode($response, true);
+        if(empty($token['access_token'])) {
+            $this->dic->logger()->root()->error('Missing access_token in Visavid token response (url: ' . $tokenUrl . ')');
+            return null;
+        }
+
+        $this->accessToken = $token['access_token'];
+        $this->accessTokenExpires = time() + max(0, (int) ($token['expires_in'] ?? 60)) - 30;
+
+        return $this->accessToken;
+    }
+
     private function buildUrl(string $type, ?string $roomId = null, ?string $id = null) {
         if(!$roomId && $type !== 'create_room') {
             throw new \Exception("Missing roomId for Visavid API-type '$type'");
@@ -454,7 +518,7 @@ class ilApiVisavid implements ilApiInterface
     }
 
     private function curlGet(string $type, ?string $roomId = null, ?string $id = null) {
-        $token = $this->settings->getSvrSalt();
+        $token = $this->getAccessToken();
         $url = $this->buildUrl($type, $roomId, $id);
 
         $accept = 'Accept: ' . ($type === 'download_recording' ? 'application/octet-stream' : 'application/json');
@@ -487,7 +551,7 @@ class ilApiVisavid implements ilApiInterface
     }
 
     private function curlPOST(string $type) {
-        $token = $this->settings->getSvrSalt();
+        $token = $this->getAccessToken();
         $roomId = $this->getRoomId();
         $url = $this->buildUrl($type, $roomId);
         $ch = curl_init($url);
@@ -515,7 +579,7 @@ class ilApiVisavid implements ilApiInterface
     }
 
     private function curlDelete(string $type, ?string $id = null) {
-        $token = $this->settings->getSvrSalt();
+        $token = $this->getAccessToken();
         $roomId = $this->getRoomId();
         if ($roomId === null) {
             $this->dic->logger()->root()->error('Unknown roomId: skip contacting Visavid system');

@@ -25,13 +25,62 @@ $ti->setSize(60);
 $ti->setInfo($pl->txt("vvd_domain_info"));
 $combo->addSubItem($ti);
 
-// api token for visavid system
-$ti = new ilTextInputGUI($pl->txt("vvd_token"), "svr_salt");
-$ti->setRequired(true);
+// authentication method
+$si = new ilSelectInputGUI($pl->txt("vvd_auth_method"), "vvd_auth_method");
+$si->setOptions([
+    'token' => $pl->txt("vvd_auth_method_token"),
+    'client_credentials' => $pl->txt("vvd_auth_method_client_credentials")
+]);
+$si->setInfo($pl->txt("vvd_auth_method_info"));
+$si->addCustomAttribute('onchange="ilMultiVcToggleVvdAuthMethod(this.value)"');
+$combo->addSubItem($si);
+
+// secret: static api token (auth method: token) or client secret (auth method: client_credentials)
+$pi = new ilPasswordInputGUI($pl->txt("vvd_secret"), "svr_salt");
+$pi->setSkipSyntaxCheck(true);
+$pi->setRequired(false);
+$pi->setMaxLength(256);
+$pi->setSize(6);
+$pi->setInfo($pl->txt("vvd_secret_info"));
+$pi->setRetype(false);
+$combo->addSubItem($pi);
+
+// access token url (auth method: client_credentials)
+$ti = new ilTextInputGUI($pl->txt("vvd_token_url"), "vvd_token_url");
+$ti->setRequired(false);
 $ti->setMaxLength(256);
 $ti->setSize(60);
-$ti->setInfo($pl->txt("vvd_token_info"));
+$ti->setInfo($pl->txt("vvd_token_url_info"));
 $combo->addSubItem($ti);
+
+// client id (auth method: client_credentials)
+$ti = new ilTextInputGUI($pl->txt("vvd_client_id"), "svr_username");
+$ti->setRequired(false);
+$ti->setMaxLength(256);
+$ti->setSize(60);
+$ti->setInfo($pl->txt("vvd_client_id_info"));
+$combo->addSubItem($ti);
+
+// scope (auth method: client_credentials, optional)
+$ti = new ilTextInputGUI($pl->txt("vvd_scope"), "vvd_scope");
+$ti->setRequired(false);
+$ti->setMaxLength(256);
+$ti->setSize(60);
+$ti->setInfo($pl->txt("vvd_scope_info"));
+$combo->addSubItem($ti);
+
+// show/hide fields depending on the selected auth method
+$this->dic->ui()->mainTemplate()->addOnLoadCode('
+    window.ilMultiVcToggleVvdAuthMethod = function (mode) {
+        var m2m = mode === "client_credentials";
+        ["vvd_token_url", "svr_username", "vvd_scope"].forEach(function (id) {
+            var el = document.getElementById("il_prop_cont_" + id);
+            if (el) { el.style.display = m2m ? "" : "none"; }
+        });
+    };
+    var vvdAuthSelect = document.getElementById("vvd_auth_method");
+    window.ilMultiVcToggleVvdAuthMethod(vvdAuthSelect ? vvdAuthSelect.value : "token");
+');
 
 /*****************
  ** ROOM CONFIG

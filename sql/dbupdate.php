@@ -1598,3 +1598,40 @@ if(!$ilDB->primaryExistsByFields("rep_robj_xmvc_vvd", array("id"))) {
     $ilDB->addPrimaryKey("rep_robj_xmvc_vvd", array("id"));
 }
 ?>
+<#51>
+<?php
+/**
+ * Visavid: OAuth 2.0 client credentials (m2m) settings
+ * client id is stored in svrusername, the secret (static token or client secret) stays in svrsalt
+ */
+if($ilDB->tableExists('rep_robj_xmvc_conn'))
+{
+    if(!$ilDB->tableColumnExists('rep_robj_xmvc_conn', 'vvd_auth_method') )
+    {
+        $ilDB->addTableColumn('rep_robj_xmvc_conn', 'vvd_auth_method', array(
+            'type' => 'text',
+            'length' => 32,
+            'notnull' => true,
+            'default' => 'token'
+        ));
+    }
+    if(!$ilDB->tableColumnExists('rep_robj_xmvc_conn', 'vvd_token_url') )
+    {
+        $ilDB->addTableColumn('rep_robj_xmvc_conn', 'vvd_token_url', array(
+            'type' => 'text',
+            'length' => 256,
+            'notnull' => true,
+            'default' => ''
+        ));
+    }
+    if(!$ilDB->tableColumnExists('rep_robj_xmvc_conn', 'vvd_scope') )
+    {
+        $ilDB->addTableColumn('rep_robj_xmvc_conn', 'vvd_scope', array(
+            'type' => 'text',
+            'length' => 256,
+            'notnull' => true,
+            'default' => ''
+        ));
+    }
+}
+?>

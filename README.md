@@ -372,8 +372,13 @@ Grundsätzlich werden die Standard-Zoom-Benachrichtigungen unter Berücksichtigu
 
 Für die Anbindung an [Visavid](https://visavid.de) ist ein API-Zugang erforderlich.
 
-In der Plugin-Administration werden die Visavid-Domain sowie das API-Token des Zugangs angegeben.
+In der Plugin-Administration werden die Visavid-Domain sowie die Zugangsdaten angegeben.
 Nun können Visavid-Räume direkt in ILIAS verwaltet und betreten werden.
+
+Für die Authentifizierung stehen zwei Methoden zur Auswahl:
+
+- **Statisches Token**: ein statischer API-Token für Abwärtskompatibilität.
+- **Client Credentials (OAuth 2.0)**: maschinelle Authentifizierung für jeden Request. Zusätzlich sind die Access-Token-URL (OIDC-Token-Endpunkt, typischerweise Keycloak), Client-ID, Client-Secret und optional ein Scope anzugeben.
 
 Besondere Infos zu einzelnen Funktionalitäten:
 
