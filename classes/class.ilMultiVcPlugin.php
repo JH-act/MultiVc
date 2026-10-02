@@ -72,7 +72,10 @@ class ilMultiVcPlugin extends ilRepositoryObjectPlugin
     {
         global $DIC;
 
+        if (!ilMultiVcConfig::eventParticipantUsesConnectionType()) { return ; }
+
         $logger = $DIC->logger()->root();
+        $tree = $DIC->repositoryTree();
 
         switch ($a_component) {
             case "Modules/Course":
@@ -82,38 +85,39 @@ class ilMultiVcPlugin extends ilRepositoryObjectPlugin
 
                     foreach ($ref_ids as $ref_id) {
                         $logger->debug('MultiVc: ' . $a_event . ' for RefId = ' . $ref_id . ' and UserId = ' . $a_parameter['usr_id']);
+                        if ($tree->isDeleted($ref_id)) { continue; }
+
                         //todo cache?
                         $xmvc_ref_ids = $DIC->repositoryTree()->getSubTree(
                             $DIC->repositoryTree()->getNodeData($ref_id),
                             false,
                             ['xmvc']
                         );
-                        //                        $logger->dump($xmvc_ref_ids);
                         foreach ($xmvc_ref_ids as $xmvc_ref_id) {
                             $multiVcObj = new ilObjMultiVc($xmvc_ref_id);
                             if ($multiVcObj->getOnline()) {
                                 $conn_id = $multiVcObj->getConnId();
                                 $conn = new ilMultiVcConfig($conn_id);
                                 $logger->debug('ref_id: ' . $xmvc_ref_id . '; Connection: ' . $conn_id . '; Content: ' . $conn->getShowContent());
-                                if ($conn->getShowContent() == 'teams') {
-                                    $upcomingMeeting = $multiVcObj->getScheduledMeetingsByDateFrom(date('Y-m-d H:i:s'), $xmvc_ref_id, 'UTC');
-                                    if ($upcomingMeeting != null) {
-                                        //$logger->dump($upcomingMeeting);
-                                        ilApiTeams::changeParticipant($a_event, $multiVcObj, $conn, $upcomingMeeting, (int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
-                                    } else {
-                                        $logger->debug("no upcoming teams meeting");
+
+                                $upcomingMeeting = $multiVcObj->getScheduledMeetingsByDateFrom(date('Y-m-d H:i:s'), $xmvc_ref_id, 'UTC');
+                                if ($upcomingMeeting != null) {
+                                    //$logger->dump($upcomingMeeting);
+                                    if ($conn->getShowContent() == 'teams') {
+                                        ilApiTeams::changeParticipant($a_event, $multiVcObj, $conn,
+                                            $upcomingMeeting, (int) $a_parameter['obj_id'], (int) $a_parameter['usr_id']);
+                                    } elseif ($conn->getShowContent() == 'zoom') {
+                                        ilApiZoom::changeParticipant($a_event, $multiVcObj, $conn,
+                                            $upcomingMeeting, (int) $a_parameter['obj_id'], (int) $a_parameter['usr_id']);
                                     }
-
-
+                                } else {
+                                    $logger->debug("no upcoming teams or zoom meeting");
                                 }
                             }
                         }
-
                         break;
                     }
-
                 }
-
                 break;
         }
     }

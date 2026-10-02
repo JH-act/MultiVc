@@ -16,6 +16,7 @@ class ilMultiVcConfig
         'om' => 'Openmeetings',
         'webex' => 'Webex',
         'teams' => 'Teams',
+        'zoom' => 'Zoom',
         'visavid' => 'Visavid'
     ];
     public const AVAILABLE_XMVC_API = [
@@ -24,6 +25,7 @@ class ilMultiVcConfig
         'bbb' => 'ilApiBBB',
         'om' => 'ilApiOM',
         'teams' => 'ilApiTeams',
+        'zoom' => 'ilApiZoom',
         'visavid' => 'ilApiVisavid'
     ];
     public const AVAILABLE_Webex_API = [
@@ -156,6 +158,16 @@ class ilMultiVcConfig
             'privateChatChoose',
             'recordChoose'
         ],
+        'zoom' => [
+            'moderatedChoose',
+            'extraCmd',
+            //            'guestlinkChoose',
+            'camOnlyForModeratorChoose',
+//            'privateChatChoose',
+            'recordChoose',
+            'manualMods',
+            'approvalType'
+        ],
         'visavid' => [
             'moderatedChoose',
             'privateChatChoose',
@@ -172,10 +184,15 @@ class ilMultiVcConfig
     private ?string $tokenUser = null;
     private ?string $api = '';
     private ?string $authMethod = '';
-    private bool $extraCmdDefault = false;
+    private int $extraCmdDefault = 0;
     private bool $extraCmdChoose = false;
     private ?array $assignedRoles = null;
     private int $meetingLayout = 2;
+    private int $manualModsDefault = 0;
+    private bool $manualModsChoose = false;
+    private int $approvalTypeDefault = 0;
+    private bool $approvalTypeChoose = false;
+
     #endregion PROPERTIES
 
     #region INIT READ WRITE
@@ -288,6 +305,10 @@ class ilMultiVcConfig
             'logo' => ['string', $this->getLogo()],
             'assigned_roles' => ['string', implode(',', $this->getAssignedRoles() ?? [])],
             'meeting_layout' => ['integer', (int) $this->getMeetingLayout()],
+            'manual_mods_choose' => ['integer', (int) $this->getManualModsChoose()],
+            'manual_mods_default' => ['integer', (int) $this->getManualModsDefault()],
+            'approval_type_choose' => ['integer', (int) $this->getApprovalTypeChoose()],
+            'approval_type_default' => ['integer', (int) $this->getApprovalTypeDefault()]
             //'more_options'			        => ['string', json_encode($this->option)],
         );
         //var_dump($a_data); exit;
@@ -383,6 +404,10 @@ class ilMultiVcConfig
         $this->authMethod = 'user';
         $this->extraCmdChoose = false;
         $this->extraCmdDefault = false;
+        $this->manualModsChoose = false;
+        $this->manualModsDefault = 0;
+        $this->approvalTypeChoose = false;
+        $this->approvalTypeDefault = 0;
         $this->style =
         $this->logo = '';
         $this->assignedRoles = [];
@@ -468,7 +493,11 @@ class ilMultiVcConfig
             #$this->setApi($record["api"]);
             $this->setAuthMethod($record["auth_method"]);
             $this->setExtraCmdChoose((bool) $record["extra_cmd_choose"]);
-            $this->setExtraCmdDefault((bool) $record["extra_cmd_default"]);
+            $this->setExtraCmdDefault((int) $record["extra_cmd_default"]);
+            $this->setManualModsChoose((bool) $record["manual_mods_choose"]);
+            $this->setManualModsDefault((int) $record["manual_mods_default"]);
+            $this->setApprovalTypeChoose((bool) $record["approval_type_choose"]);
+            $this->setApprovalTypeDefault((int) $record["approval_type_default"]);
             $this->setStyle((string) $record["style"]);
             $this->setLogo((string) $record["logo"]);
             $this->setAssignedRoles(explode(',', $record["assigned_roles"]));
@@ -1015,12 +1044,12 @@ class ilMultiVcConfig
     }
 
 
-    public function getExtraCmdDefault(): bool
+    public function getExtraCmdDefault(): int
     {
         return $this->extraCmdDefault;
     }
 
-    public function setExtraCmdDefault(bool $extraCmdDefault): void
+    public function setExtraCmdDefault(int $extraCmdDefault): void
     {
         $this->extraCmdDefault = $extraCmdDefault;
     }
@@ -1033,6 +1062,47 @@ class ilMultiVcConfig
     public function setExtraCmdChoose(bool $extraCmdChoose): void
     {
         $this->extraCmdChoose = $extraCmdChoose;
+    }
+
+
+    public function getManualModsDefault(): int
+    {
+        return $this->manualModsDefault;
+    }
+
+    public function setManualModsDefault(int $manualModsDefault): void
+    {
+        $this->manualModsDefault = $manualModsDefault;
+    }
+
+    public function getManualModsChoose(): bool
+    {
+        return $this->manualModsChoose;
+    }
+
+    public function setManualModsChoose(bool $manualModsChoose): void
+    {
+        $this->manualModsChoose = $manualModsChoose;
+    }
+
+    public function getApprovalTypeDefault(): int
+    {
+        return $this->approvalTypeDefault;
+    }
+
+    public function setApprovalTypeDefault(int $approvalTypeDefault): void
+    {
+        $this->approvalTypeDefault = $approvalTypeDefault;
+    }
+
+    public function getApprovalTypeChoose(): bool
+    {
+        return $this->approvalTypeChoose;
+    }
+
+    public function setApprovalTypeChoose(bool $approvalTypeChoose): void
+    {
+        $this->approvalTypeChoose = $approvalTypeChoose;
     }
 
     public function getAddPresentationUrl(): string
@@ -1251,7 +1321,9 @@ class ilMultiVcConfig
         $data = array();
         while ($row = $ilDB->fetchAssoc($res)) {
             if ($a_extended) {
-                $row['usages'] = self::_countUntrashedUsages($row['id']);
+                $row['untrashed_usages'] = self::_countUntrashedUsages($row['id']);
+                $row['trashed_usages'] = self::_countTrashedUsages($row['id']);
+                $row['usages'] = self::_countAllUsages($row['id']);
             }
             $row['conn_id'] = $row['id'];
             unset($row['id']);
@@ -1276,6 +1348,43 @@ class ilMultiVcConfig
         $res = $ilDB->query($query);
         $row = $ilDB->fetchObject($res);
         return $row->untrashed;
+    }
+
+    /**
+     * Count the number of trashed usages of a type
+     */
+    public static function _countTrashedUsages(int $a_type_id): int
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        $query = "SELECT COUNT(*) trashed FROM rep_robj_xmvc_data s"
+            . " INNER JOIN object_reference r ON s.id = r.obj_id"
+            . " WHERE r.deleted IS NOT NULL "
+            . " AND s.conn_id = " . $ilDB->quote($a_type_id, 'integer');
+
+        $res = $ilDB->query($query);
+        $row = $ilDB->fetchObject($res);
+        return $row->trashed;
+    }
+
+    /**
+     * Count all usages of a type (active and trashed)
+     */
+    public static function _countAllUsages(int $a_type_id): int
+    {
+        return self::_countUntrashedUsages($a_type_id) + self::_countTrashedUsages($a_type_id);
+    }
+
+    public static function connectionExists(int $connId): bool
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        $set = $ilDB->query(
+            "SELECT id FROM rep_robj_xmvc_conn WHERE id = " . $ilDB->quote($connId, 'integer')
+        );
+        return (bool) $ilDB->fetchAssoc($set);
     }
 
     public static function _getMultiVcConnUsesReferences(int $connId): array
@@ -1366,7 +1475,18 @@ class ilMultiVcConfig
         return trim($value);
     }
 
+    public static function eventParticipantUsesConnectionType(): bool
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
 
+        $result = $ilDB->query("SELECT showcontent FROM rep_robj_xmvc_conn"
+            . " WHERE showcontent = " . $ilDB->quote('teams', 'text')
+            . " OR showcontent = " . $ilDB->quote('zoom', 'text')
+        );
+        $row = $ilDB->fetchAssoc($result);
+        return !(null === $row);
+    }
 
 
 
