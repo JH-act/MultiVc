@@ -42,7 +42,6 @@ class ilApiVisavid implements ilApiInterface
     }
 
     public function loadRoom($id = null) {
-        $domain = $this->settings->getSvrPublicUrl();
         $token = $this->getAccessToken();
 
         $title = $this->object->getTitle();
@@ -486,8 +485,7 @@ class ilApiVisavid implements ilApiInterface
             throw new \Exception("Missing id for Visavid API-type '$type' for roomId '$roomId'");
         }
 
-        $domain = $this->settings->getSvrPublicUrl();
-        $apiRoot = $domain . '/api/verwaltung/v1.3.0/rooms';
+        $apiRoot = rtrim((string) $this->settings->getSvrPublicUrl(), '/') . '/rooms';
         $base = $apiRoot . ($roomId !== null ? '/' . $roomId : '');
 
         switch ($type) {

@@ -444,8 +444,8 @@ user_results#:#Attendance times
 user_results_desc#:#Time is only displayed for meetings that have already ended. Meetings must also have reached the scheduled end.
 user_start#:#first start
 user_time#:#Attendance time
-vvd_domain#:#Visavid domain
-vvd_domain_info#:#URL of the Visavid system where the room is to be created
+vvd_domain#:#Visavid API base URL
+vvd_domain_info#:#Full base URL of the Visavid API including version
 vvd_secret#:#API token / Client secret
 vvd_secret_info#:#The fixed API token with the "Static token" method, the client secret with the "Client credentials (OAuth 2.0)" method.
 vvd_auth_method#:#Authentication method
