@@ -66,3 +66,4 @@
 - Bugfix for deleting old MultiVC objects from trash
 9.14
 - support Visavid (see README.md)
+- widen srvsalt column to 4000 so long static tokens are not truncated

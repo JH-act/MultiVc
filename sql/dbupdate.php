@@ -1635,3 +1635,15 @@ if($ilDB->tableExists('rep_robj_xmvc_conn'))
     }
 }
 ?>
+<#52>
+<?php
+if($ilDB->tableExists('rep_robj_xmvc_conn'))
+{
+    $ilDB->modifyTableColumn('rep_robj_xmvc_conn', 'svrsalt', array(
+        'type' => 'text',
+        'length' => 4000,
+        'notnull' => true,
+        'default' => ''
+    ));
+}
+?>

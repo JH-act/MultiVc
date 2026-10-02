@@ -39,7 +39,7 @@ $combo->addSubItem($si);
 $pi = new ilPasswordInputGUI($pl->txt("vvd_secret"), "svr_salt");
 $pi->setSkipSyntaxCheck(true);
 $pi->setRequired(false);
-$pi->setMaxLength(256);
+$pi->setMaxLength(4000);
 $pi->setSize(6);
 $pi->setInfo($pl->txt("vvd_secret_info"));
 $pi->setRetype(false);
