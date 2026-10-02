@@ -64,5 +64,5 @@
 - features for zoom webinars
 - improve performance for event handler regarding add or remove participants
 - Bugfix for deleting old MultiVC objects from trash
-9.x
+9.14
 - support Visavid (see README.md)

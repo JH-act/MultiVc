@@ -423,7 +423,7 @@ class ilApiVisavid implements ilApiInterface
         }
 
         $domain = $this->settings->getSvrPublicUrl();
-        $apiRoot = $domain . '/api/verwaltung/v1.2.0/rooms';
+        $apiRoot = $domain . '/api/verwaltung/v1.3.0/rooms';
         $base = $apiRoot . ($roomId !== null ? '/' . $roomId : '');
 
         switch ($type) {
