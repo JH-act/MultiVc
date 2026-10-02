@@ -58,7 +58,7 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
         $this->setDefaultOrderDirection('asc');
         //$this->disable('sort');
         $this->setRowTemplate('tpl.user_log_row.html', 'Customizing/global/plugins/Services/Repository/RepositoryObject/MultiVc');
-        if(!$this->platform === 'visavid') {
+        if($this->platform !== 'visavid') {
             $this->initFilterDateDuration();
         }
         $this->setFilterCommand('applyFilterUserLog');
@@ -100,7 +100,7 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
         $wS = '10%';
         $wM = '15%';
         $wL = '30%';
-        if(!$this->platform === 'visavid') {
+        if($this->platform !== 'visavid') {
             $this->addColumn($this->dic->language()->txt('repository'), 'REF');
         }
         if($this->getParentCmd() === 'downloadUserLog') {
@@ -168,7 +168,7 @@ class ilMultiVcUserLogTableGUI extends ilTable2GUI
      */
     protected function fillRow($a_set): void
     {
-        if(!$this->platform === 'visavid') {
+        if($this->platform !== 'visavid') {
             $this->tpl->setVariable('REF', $a_set['REF']);
         } else {
             $this->tpl->setVariable('HIDE_REF', ' style="display:none;"');

@@ -61,7 +61,6 @@ class ilApiVisavid implements ilApiInterface
             'requireCode' => true,
             'emojis' => true,
             'raiseHand' => true,
-            'chat1to1' => true,
             'attendance' => [
                 'attendanceLogging' => true
             ]
@@ -78,6 +77,7 @@ class ilApiVisavid implements ilApiInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Accept: application/json',
+            'Content-Type: application/json',
             'Authorization: Bearer ' . $token,
             'Content-Length: ' . strlen($jsonData)
         ]);
@@ -418,7 +418,7 @@ class ilApiVisavid implements ilApiInterface
         if(!$roomId && $type !== 'create_room') {
             throw new \Exception("Missing roomId for Visavid API-type '$type'");
         }
-        if(!$id && $type === 'recordings' || $type === 'delete_recording') {
+        if (!$id && ($type === 'recordings' || $type === 'delete_recording')) {
             throw new \Exception("Missing id for Visavid API-type '$type' for roomId '$roomId'");
         }
 
