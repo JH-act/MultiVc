@@ -65,3 +65,6 @@
 - improve performance for event handler regarding add or remove participants
 - Bugfix for deleting old MultiVC objects from trash
 - Bugfix for 'Block meeting type deletion when objects still reference it'
+10.14
+- support Visavid (see README.md)
+- widen srvsalt column to 4000 so long static tokens are not truncated

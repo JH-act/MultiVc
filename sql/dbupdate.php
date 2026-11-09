@@ -1572,3 +1572,81 @@ if($ilDB->tableExists('rep_robj_xmvc_data'))
 <?php
 // deleted
 ?>
+<#50>
+<?php
+/**
+ * Add information to Visavid room
+ */
+$fields_data = array(
+    // UUID of visavid room
+    'id' => array( 
+        'type' => 'text', 
+        'length' => 36,
+        'notnull' => true
+    ),
+    // FK for rep_robj_xmvc_data id
+    'ref_id' => array(
+        'type' => 'integer', 
+        'length' => 8,
+        'notnull' => true
+    ),
+);
+if(!$ilDB->tableExists("rep_robj_xmvc_vvd")) {
+    $ilDB->createTable("rep_robj_xmvc_vvd", $fields_data);
+}
+if(!$ilDB->primaryExistsByFields("rep_robj_xmvc_vvd", array("id"))) {
+    $ilDB->addPrimaryKey("rep_robj_xmvc_vvd", array("id"));
+}
+?>
+<#51>
+<?php
+/**
+ * Visavid: OAuth 2.0 client credentials (m2m) settings
+ * client id is stored in svrusername, the secret (static token or client secret) stays in svrsalt
+ */
+if($ilDB->tableExists('rep_robj_xmvc_conn'))
+{
+    if(!$ilDB->tableColumnExists('rep_robj_xmvc_conn', 'vvd_auth_method') )
+    {
+        $ilDB->addTableColumn('rep_robj_xmvc_conn', 'vvd_auth_method', array(
+            'type' => 'text',
+            'length' => 32,
+            'notnull' => true,
+            'default' => 'token'
+        ));
+    }
+    if(!$ilDB->tableColumnExists('rep_robj_xmvc_conn', 'vvd_token_url') )
+    {
+        $ilDB->addTableColumn('rep_robj_xmvc_conn', 'vvd_token_url', array(
+            'type' => 'text',
+            'length' => 256,
+            'notnull' => true,
+            'default' => ''
+        ));
+    }
+    if(!$ilDB->tableColumnExists('rep_robj_xmvc_conn', 'vvd_scope') )
+    {
+        $ilDB->addTableColumn('rep_robj_xmvc_conn', 'vvd_scope', array(
+            'type' => 'text',
+            'length' => 256,
+            'notnull' => true,
+            'default' => ''
+        ));
+    }
+}
+?>
+<#52>
+/**
+ * increase size of svrsalt to allow for longer API tokens or client credentials
+ */
+<?php
+if($ilDB->tableExists('rep_robj_xmvc_conn'))
+{
+    $ilDB->modifyTableColumn('rep_robj_xmvc_conn', 'svrsalt', array(
+        'type' => 'text',
+        'length' => 4000,
+        'notnull' => true,
+        'default' => ''
+    ));
+}
+?>

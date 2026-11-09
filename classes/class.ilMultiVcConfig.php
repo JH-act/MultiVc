@@ -16,7 +16,8 @@ class ilMultiVcConfig
         'om' => 'Openmeetings',
         'webex' => 'Webex',
         'teams' => 'Teams',
-        'zoom' => 'Zoom'
+        'zoom' => 'Zoom',
+        'visavid' => 'Visavid'
     ];
     public const AVAILABLE_XMVC_API = [
         'webex' => 'ilApiWebex',
@@ -24,7 +25,8 @@ class ilMultiVcConfig
         'bbb' => 'ilApiBBB',
         'om' => 'ilApiOM',
         'teams' => 'ilApiTeams',
-        'zoom' => 'ilApiZoom'
+        'zoom' => 'ilApiZoom',
+        'visavid' => 'ilApiVisavid'
     ];
     public const AVAILABLE_Webex_API = [
         'admin' => 'Admin Scopes',
@@ -49,7 +51,7 @@ class ilMultiVcConfig
 
     public const VC_RELATED_FUNCTION = [
         'globalAssignedRoles' => [
-            'bbb', 'edudip', 'webex', 'om', 'teams'
+            'bbb', 'edudip', 'webex', 'om', 'teams', 'visavid'
         ],
         'maxDuration' => [
             'bbb'
@@ -86,6 +88,9 @@ class ilMultiVcConfig
     private ?int $svrPrivatePort = null;
     private ?string $svrSalt = null;
     private ?string $svrUsername = null;
+    private string $vvdAuthMethod = 'token';
+    private string $vvdTokenUrl = '';
+    private string $vvdScope = '';
     private int $maxParticipants = 0;
     private int $maxDuration = 0;
     private ?string $showContent = null;
@@ -165,6 +170,13 @@ class ilMultiVcConfig
             'recordChoose',
             'manualMods',
             'approvalType'
+        ],
+        'visavid' => [
+            'moderatedChoose',
+            'privateChatChoose',
+            'recordChoose',
+            'camOnlyForModeratorChoose',
+            'guestlinkChoose'
         ]
     ];
 
@@ -280,6 +292,9 @@ class ilMultiVcConfig
             'lock_disable_cam' => ['integer', (int) $this->getLockDisableCamChoose()],
             'lock_disable_cam_default' => ['integer', (int) $this->getLockDisableCamDefault()],
             'svrUsername' => ['string', $this->getSvrUsername()],
+            'vvd_auth_method' => ['string', $this->getVvdAuthMethod()],
+            'vvd_token_url' => ['string', $this->getVvdTokenUrl()],
+            'vvd_scope' => ['string', $this->getVvdScope()],
             'guestlink_choose' => ['integer', (int) $this->isGuestlinkChoose()],
             'guestlink_default' => ['integer', (int) $this->isGuestlinkDefault()],
             'add_presentation_url' => ['string', $this->getAddPresentationUrl()],
@@ -377,6 +392,9 @@ class ilMultiVcConfig
         $this->svrPrivatePort = 443;
         $this->svrSalt = '';
         $this->svrUsername = '';
+        $this->vvdAuthMethod = 'token';
+        $this->vvdTokenUrl = '';
+        $this->vvdScope = '';
         $this->maxParticipants = 20;
         $this->maxDuration = 0;
         //$this->showContent
@@ -473,6 +491,9 @@ class ilMultiVcConfig
             $this->setLockDisableCamChoose((bool) $record["lock_disable_cam"]);
             $this->setLockDisableCamDefault((bool) $record["lock_disable_cam_default"]);
             $this->setSvrUsername($record['svrusername']);
+            $this->setVvdAuthMethod((string) $record["vvd_auth_method"]);
+            $this->setVvdTokenUrl((string) $record["vvd_token_url"]);
+            $this->setVvdScope((string) $record["vvd_scope"]);
             $this->setGuestlinkChoose((bool) $record["guestlink_choose"]);
             $this->setGuestlinkDefault((bool) $record["guestlink_default"]);
             $this->setAddPresentationUrl($record["add_presentation_url"]);
@@ -796,6 +817,36 @@ class ilMultiVcConfig
     public function setSvrUsername(?string $svrUsername): void
     {
         $this->svrUsername = $svrUsername;
+    }
+
+    public function getVvdAuthMethod(): string
+    {
+        return $this->vvdAuthMethod;
+    }
+
+    public function setVvdAuthMethod(?string $vvdAuthMethod): void
+    {
+        $this->vvdAuthMethod = (string) $vvdAuthMethod;
+    }
+
+    public function getVvdTokenUrl(): string
+    {
+        return $this->vvdTokenUrl;
+    }
+
+    public function setVvdTokenUrl(?string $vvdTokenUrl): void
+    {
+        $this->vvdTokenUrl = (string) $vvdTokenUrl;
+    }
+
+    public function getVvdScope(): string
+    {
+        return $this->vvdScope;
+    }
+
+    public function setVvdScope(?string $vvdScope): void
+    {
+        $this->vvdScope = (string) $vvdScope;
     }
 
     public function getMaxParticipants(): ?int

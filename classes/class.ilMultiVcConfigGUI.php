@@ -591,6 +591,9 @@ class ilMultiVcConfigGUI extends ilPluginConfigGUI
         $values["svr_private_port"] = $this->object->getSvrPrivatePort();
         $values["svr_salt"] = $this->object->getSvrSalt();
         $values["svr_username"] = $this->object->getSvrUsername();
+        $values["vvd_auth_method"] = $this->object->getVvdAuthMethod();
+        $values["vvd_token_url"] = $this->object->getVvdTokenUrl();
+        $values["vvd_scope"] = $this->object->getVvdScope();
         $values["max_participants"] = $this->object->getMaxParticipants();
         // MaxDuration
         if(in_array($this->object->getShowContent(), ilMultiVcConfig::VC_RELATED_FUNCTION['maxDuration'])) {
@@ -812,6 +815,9 @@ class ilMultiVcConfigGUI extends ilPluginConfigGUI
                 $this->object->setSvrPrivateUrl(trim($form->getInput("svr_private_url")));
                 $this->object->setSvrPrivatePort((int) $form->getInput("svr_private_port"));
                 $this->object->setSvrUsername($form->getInput("svr_username"));
+                $this->object->setVvdAuthMethod($form->getInput("vvd_auth_method"));
+                $this->object->setVvdTokenUrl(trim((string) $form->getInput("vvd_token_url")));
+                $this->object->setVvdScope(trim((string) $form->getInput("vvd_scope")));
                 $this->object->setMaxParticipants((int) $form->getInput("max_participants"));
                 // Max Duration
                 if(!in_array($this->object->getShowContent(), ilMultiVcConfig::VC_RELATED_FUNCTION['maxDuration'])) {
@@ -940,6 +946,9 @@ class ilMultiVcConfigGUI extends ilPluginConfigGUI
         $values["svr_private_port"] = '';
         $values["svr_salt"] = '';
         $values["svr_username"] = '';
+        $values["vvd_auth_method"] = 'token';
+        $values["vvd_token_url"] = '';
+        $values["vvd_scope"] = '';
         $values["max_participants"] = 20;
         #echo $platform; exit;
 
